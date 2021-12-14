@@ -1,0 +1,25 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@1.5.0
+  codecov: codecov/codecov@3.2.2
+
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/python:3.9.0
+    steps:
+      - checkout
+      - run: 
+          name: Install dependencies
+          command: pip install -r requirements.txt
+      - run:
+          name: Run tests
+          command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
+      - codecov/upload:
+          file: coverage.xml
+  
+workflows:
+  build-and-test:
+    jobs:
+      - build-and-test
