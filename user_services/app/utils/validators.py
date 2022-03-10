@@ -7,6 +7,7 @@ from six.moves.urllib.request import urlopen
 
 class JwtValidator:
     """A javascript web token validator"""
+
     def __init__(self, auth0_config: dict):
         self.auth0_config = auth0_config
 
@@ -19,7 +20,8 @@ class JwtValidator:
         :raises HTTPException: if anything goes wrong during the validation process
         """
         try:
-            jsonurl = urlopen(f"{self.auth0_config['ISSUER']}.well-known/jwks.json")
+            jsonurl = urlopen(
+                f"{self.auth0_config['ISSUER']}.well-known/jwks.json")
             jwks = json.loads(jsonurl.read())
             unverified_header = jwt.get_unverified_header(token)
             rsa_key = {}

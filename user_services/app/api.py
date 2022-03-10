@@ -32,7 +32,8 @@ def require_auth(func) -> Any:
 
     def validate_bearer_token(bearer_token) -> None:
         if not bearer_token:
-            raise HTTPException(status_code=401, detail="User not authenticated")
+            raise HTTPException(
+                status_code=401, detail="User not authenticated")
         if bearer_token.scheme != "Bearer":
             raise HTTPException(status_code=401, detail="Authorization header must be "
                                                         "of type bearer")

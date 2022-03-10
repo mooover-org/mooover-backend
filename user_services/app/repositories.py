@@ -4,7 +4,8 @@ from app.domain.users import User
 
 class MockUserRepository:
     """A user repository that mocks the data. Stores 3 default user in memory"""
-    users = [User(**{"user_id": 1}), User(**{"user_id": 2}), User(**{"user_id": 3})]
+    users = [User(**{"user_id": 1}), User(**{"user_id": 2}),
+             User(**{"user_id": 3})]
 
     def find_one(self, user_id: int) -> User:
         """
