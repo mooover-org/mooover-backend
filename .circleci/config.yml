@@ -10,12 +10,15 @@ jobs:
       - image: cimg/python:3.9.0
     steps:
       - checkout
+      - run:
+          name: Prepare files
+          command: mv ./user_services/* . && mv ./user_services/.* . && pwd && ls -l
       - run: 
           name: Install dependencies
-          command: cd user_services && pip install -r requirements.txt
+          command: pwd && ls -l && pip install -r requirements.txt
       - run:
           name: Run tests
-          command: cd user_services && pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test && ls -l && cd .. && ls -l
+          command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
       - codecov/upload:
           file: coverage.xml
   
