@@ -8,7 +8,7 @@ jobs:
   test-user-services:
     docker:
       - image: cimg/python:3.9.0
-    working_directory: ~/mooover-backend/user_services
+    working_directory: ~/mooover-backend/user_services/user_services
     steps:
       - checkout
       - run: 
