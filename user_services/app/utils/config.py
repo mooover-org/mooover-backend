@@ -1,7 +1,7 @@
 import os
 from configparser import ConfigParser
 
-from domain.errors import NotFoundError
+from app.domain.errors import NotFoundError
 
 
 def load_config() -> ConfigParser:

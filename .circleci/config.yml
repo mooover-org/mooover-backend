@@ -12,10 +12,10 @@ jobs:
       - checkout
       - run:
           name: Prepare files
-          command: pwd && ls -al && cp -r user_services/. . && pwd && ls -al
+          command: cp -r ~/project/user_services/. .
       - run: 
           name: Install dependencies
-          command: pwd && ls -al && pip install -r requirements.txt
+          command: pip install -r requirements.txt
       - run:
           name: Run tests
           command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test

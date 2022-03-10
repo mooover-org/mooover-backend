@@ -1,8 +1,8 @@
 import pytest
 
-from domain.errors import NotFoundError
-from repositories import MockUserRepository
-from services import UserServices
+from app.domain.errors import NotFoundError
+from app.repositories import MockUserRepository
+from app.services import UserServices
 
 
 def test_get_user():

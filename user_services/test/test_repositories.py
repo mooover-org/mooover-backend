@@ -1,7 +1,7 @@
 import pytest
 
-from domain.errors import NotFoundError
-from repositories import MockUserRepository
+from app.domain.errors import NotFoundError
+from app.repositories import MockUserRepository
 
 
 def test_find_one():

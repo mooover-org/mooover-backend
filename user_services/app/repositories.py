@@ -1,5 +1,5 @@
-from domain.errors import NotFoundError
-from domain.users import User
+from app.domain.errors import NotFoundError
+from app.domain.users import User
 
 
 class MockUserRepository:

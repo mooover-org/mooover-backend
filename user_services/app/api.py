@@ -4,11 +4,11 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer
 
-from domain.errors import NotFoundError
-from domain.users import User
-from repositories import MockUserRepository
-from services import UserServices
-from utils.validators import validate_jwt
+from app.domain.errors import NotFoundError
+from app.domain.users import User
+from app.repositories import MockUserRepository
+from app.services import UserServices
+from app.utils.validators import validate_jwt
 
 router = APIRouter()
 services = UserServices(MockUserRepository())
