@@ -12,7 +12,7 @@ jobs:
       - checkout
       - run:
           name: Prepare files
-          command: mv ./user_services/. . && pwd && ls -al
+          command: pwd && ls -al && cp -r user_services/. . && pwd && ls -al
       - run: 
           name: Install dependencies
           command: pwd && ls -al && pip install -r requirements.txt
