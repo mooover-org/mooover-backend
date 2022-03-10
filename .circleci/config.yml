@@ -8,15 +8,14 @@ jobs:
   test-user-services:
     docker:
       - image: cimg/python:3.9.0
-    working_directory: ~/mooover-backend/user_services/user_services
     steps:
       - checkout
       - run: 
           name: Install dependencies
-          command: pwd && ls -l && cd user_services && pwd && ls -l && pip install -r requirements.txt
+          command: cd user_services && pip install -r requirements.txt
       - run:
           name: Run tests
-          command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
+          command: cd user_services && pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test && ls -l && cd .. && ls -l
       - codecov/upload:
           file: coverage.xml
   
