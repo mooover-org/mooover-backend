@@ -1,8 +1,8 @@
 version = 1
 
-test_patterns = ["test/**"]
+test_patterns = ["*/test/**"]
 
-exclude_patterns = ["venv/**"]
+exclude_patterns = ["*/venv/**"]
 
 [[analyzers]]
 name = "test-coverage"
@@ -13,7 +13,7 @@ name = "python"
 enabled = true
 
   [analyzers.meta]
-  runtime_version = "3.x.x"
+  runtime_version = "3.8.x"
 
 [[transformers]]
 name = "autopep8"
