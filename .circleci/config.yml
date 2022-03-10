@@ -13,7 +13,7 @@ jobs:
       - checkout
       - run: 
           name: Install dependencies
-          command: pwd && ls -l && pip install -r requirements.txt
+          command: pwd && ls -l && cd user_services && pwd && ls -l && pip install -r requirements.txt
       - run:
           name: Run tests
           command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
