@@ -4,14 +4,17 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer
 
-from domain.errors import NotFoundError
-from domain.users import User
-from repositories import MockUserRepository
-from services import UserServices
-from utils.validators import validate_jwt
+from app.domain.errors import NotFoundError
+from app.domain.users import User
+from app.repositories import MockUserRepository
+from app.services import UserServices
+from app.utils.config import AppConfig
+from app.utils.validators import JwtValidator
 
 router = APIRouter()
 services = UserServices(MockUserRepository())
+
+jwt_validator = JwtValidator(AppConfig().auth0_config)
 
 
 def require_auth(func) -> Any:
@@ -29,11 +32,12 @@ def require_auth(func) -> Any:
 
     def validate_bearer_token(bearer_token) -> None:
         if not bearer_token:
-            raise HTTPException(status_code=401, detail="User not authenticated")
+            raise HTTPException(
+                status_code=401, detail="User not authenticated")
         if bearer_token.scheme != "Bearer":
             raise HTTPException(status_code=401, detail="Authorization header must be "
                                                         "of type bearer")
-        validate_jwt(bearer_token.credentials)
+        jwt_validator.validate(bearer_token.credentials)
 
     return wrapper_require_auth
 

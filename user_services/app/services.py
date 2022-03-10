@@ -1,5 +1,5 @@
-from domain.users import User
-from repositories import MockUserRepository
+from app.domain.users import User
+from app.repositories import MockUserRepository
 
 
 class UserServices:

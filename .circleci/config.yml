@@ -6,11 +6,13 @@ orbs:
 
 jobs:
   test-user-services:
-    working_directory: ~/mooover-backend/user_services/
     docker:
-      - image: cimg/python:3.9.0
+      - image: cimg/python:3.8.0
     steps:
       - checkout
+      - run:
+          name: Prepare files
+          command: cp -r ~/project/user_services/. .
       - run: 
           name: Install dependencies
           command: pip install -r requirements.txt
