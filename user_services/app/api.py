@@ -4,7 +4,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer
 
-from app.domain.errors import NotFoundError
+from app.domain.errors import NotFoundError, DuplicateError
 from app.domain.users import User
 from app.repositories import MockUserRepository
 from app.services import UserServices
@@ -42,19 +42,39 @@ def require_auth(func) -> Any:
     return wrapper_require_auth
 
 
-@router.get("/{user_id}/", response_model=User)
+@router.get("/{user_id}", response_model=User)
 @require_auth
-def get_user(user_id: int, bearer_token=Depends(HTTPBearer())):
+async def get_user(user_id: int, bearer_token=Depends(HTTPBearer())):
     """
     Route for getting a user by id.
 
     :param user_id: the id of the user as an integer
     :param bearer_token: the bearer token for authorization
     :return: the corresponding user
-    :raises HTTPException: if user not found
+    :raises HTTPException: if user not found or authorization is invalid
     """
     try:
         user = services.get_user(user_id)
     except NotFoundError:
         raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+@router.post("", response_model=User)
+@require_auth
+async def add_user(user: User, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for adding a new user.
+
+    :param user: the user to be added
+    :param bearer_token: the bearer token for authorization
+    :return: the newly added user
+    :raises HTTPException: if authorization is invalid
+    """
+    try:
+        # TODO(adipopbv): change pydantic implementation to something that works (
+        #  like taking params from request body)
+        user = services.add_user(user)
+    except DuplicateError:
+        raise HTTPException(status_code=409, detail="User already exists")
     return user

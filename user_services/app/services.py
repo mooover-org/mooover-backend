@@ -17,3 +17,13 @@ class UserServices:
         "raises NotFoundError: if the user cannot be found in the repository
         """
         return self.repo.find_one(user_id)
+
+    def add_user(self, user: User):
+        """
+        Adds a user.
+
+        :param user: the user to be added
+        :return: the added user
+        "raises DuplicateError: if the user already exists in the repository
+        """
+        return self.repo.add_user(user)
