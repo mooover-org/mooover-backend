@@ -1,11 +1,57 @@
 import pytest
 
-from app.domain.errors import NotFoundError
-from app.repositories import MockUserRepository
+from app.domain.errors import NotFoundError, DuplicateError
+from app.repositories import Repository
+from domain.entities import Entity
 
 
-def test_find_one():
-    repo = MockUserRepository()
-    assert repo.find_one(1).user_id == 1
-    with pytest.raises(NotFoundError):
-        repo.find_one(-1)
+class TestRepository:
+    entity1: Entity
+    entity2: Entity
+    entity3: Entity
+    repo: Repository
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.entity1 = Entity(**{"id": "1"})
+        self.entity2 = Entity(**{"id": "2"})
+        self.entity3 = Entity(**{"id": "3"})
+        self.repo = Repository({self.entity1.id: self.entity1})
+
+    def test_get_one(self):
+        assert self.repo.get_one(self.entity1.id).id == self.entity1.id
+        with pytest.raises(NotFoundError):
+            self.repo.get_one(self.entity2.id)
+
+    def test_get_all(self):
+        assert len(self.repo.get_all()) == 1
+        assert self.repo.get_all()[0].id == self.entity1.id
+
+    def test_add(self):
+        assert len(self.repo.get_all()) == 1
+        self.repo.add(self.entity2)
+        assert len(self.repo.get_all()) == 2
+        assert self.repo.get_one(self.entity2.id).id == self.entity2.id
+        with pytest.raises(DuplicateError):
+            self.repo.add(self.entity2)
+
+    def test_update(self):
+        assert len(self.repo.get_all()) == 1
+        self.entity2.id = self.entity1.id
+        self.repo.update(self.entity2)
+        assert len(self.repo.get_all()) == 1
+        assert self.repo.get_one(self.entity2.id).id == self.entity2.id
+        with pytest.raises(NotFoundError):
+            self.repo.update(self.entity3)
+
+    def test_delete(self):
+        assert len(self.repo.get_all()) == 1
+        self.repo.delete(self.entity1.id)
+        assert len(self.repo.get_all()) == 0
+        with pytest.raises(NotFoundError):
+            self.repo.delete(self.entity1.id)
+
+    def test_delete_all(self):
+        assert len(self.repo.get_all()) == 1
+        self.repo.delete_all()
+        assert len(self.repo.get_all()) == 0

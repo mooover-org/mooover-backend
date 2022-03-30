@@ -1,38 +1,76 @@
+from typing import Any
+
 from app.domain.errors import NotFoundError, DuplicateError
-from app.domain.users import User
 
 
-class MockUserRepository:
-    """A user repository that mocks the data. Stores 3 default user in memory"""
-    users = [
-        User(**{"user_id": 1, "name": "user 1"}),
-        User(**{"user_id": 2, "name": "user 2"})
-    ]
+class Repository:
+    """Abstract class for all repositories"""
+    entities = {}
 
-    def find_one(self, user_id: int) -> User:
+    def __init__(self, entities=None) -> None:
+        if entities:
+            self.entities = entities
+
+    def get_one(self, entity_id: str) -> Any:
         """
-        Finds the first user with the given id.
+        Get one entity by id
 
-        :param user_id: the id of the user
-        :return: the user
-        :raises NotFoundError: if there is no user with that id in the repository
+        :param entity_id: The id of the entity
+        :return: The entity
         """
-        for user in self.users:
-            if user_id == user.user_id:
-                return user
-        raise NotFoundError("user not found")
+        if entity_id not in self.entities:
+            raise NotFoundError(entity_id)
+        return self.entities[entity_id]
 
-    def add_user(self, user: User):
+    def get_all(self) -> list:
         """
-        Adds a user to the repo.
+        Get all entities
 
-        :param user: the user to be added
-        :return: the added user
-        :raises DuplicateError: if there is user with that id in the repository already
+        :return: A list of all entities
         """
-        try:
-            self.find_one(user.user_id)
-            raise DuplicateError("user already exists")
-        except NotFoundError:
-            self.users.append(user)
-            return user
+        return [*self.entities.values()]
+
+    def add(self, entity) -> None:
+        """
+        Add an entity to the repository
+
+        :param entity: The entity to be added
+        :return: None
+        :raises: DuplicateError: If the entity already exists
+        """
+        if entity.id in self.entities:
+            raise DuplicateError(entity.id)
+        self.entities[entity.id] = entity
+
+    def update(self, entity) -> None:
+        """
+        Update an entity in the repository
+
+        :param entity: The entity to be updated
+        :return: None
+        :raises: NotFoundError: If the entity does not exist
+        """
+        if entity.id not in self.entities:
+            raise NotFoundError(entity.id)
+        self.entities[entity.id] = entity
+
+    def delete(self, entity_id) -> None:
+        """
+        Delete an entity from the repository
+
+        :param entity_id: The id of the entity to be deleted
+        :return: None
+        :raises: NotFoundError: If the entity does not exist
+        """
+        if entity_id not in self.entities:
+            raise NotFoundError(entity_id)
+        del self.entities[entity_id]
+
+    def delete_all(self) -> None:
+        """
+        Delete all entities from the repository
+
+        :return: None
+        """
+        self.entities = {}
+

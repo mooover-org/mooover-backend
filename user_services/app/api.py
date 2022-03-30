@@ -5,30 +5,30 @@ from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer
 
 from app.domain.errors import NotFoundError, DuplicateError
-from app.domain.users import User
-from app.repositories import MockUserRepository
+from app.domain.entities import User
+from app.repositories import Repository
 from app.services import UserServices
 from app.utils.config import AppConfig
 from app.utils.validators import JwtValidator
 
 router = APIRouter()
-services = UserServices(MockUserRepository())
+services = UserServices(Repository())
 
 jwt_validator = JwtValidator(AppConfig().auth0_config)
 
 
 def require_auth(func) -> Any:
     """
-    Decorator to check for authorization before giving access to resources.
+    Decorator to check for authorization before giving access to resources
 
     :param func: the function that needs to be decorated
     :return: the decorated function
     """
 
     @functools.wraps(func)
-    def wrapper_require_auth(*args, **kwargs):
+    async def wrapper_require_auth(*args, **kwargs):
         validate_bearer_token(kwargs["bearer_token"])
-        return func(*args, **kwargs)
+        return await func(*args, **kwargs)
 
     def validate_bearer_token(bearer_token) -> None:
         if not bearer_token:
@@ -42,11 +42,21 @@ def require_auth(func) -> Any:
     return wrapper_require_auth
 
 
+@router.get("/ping", response_model=str)
+async def ping():
+    """
+    Route for checking if the server is up
+
+    :return: a string saying "pong"
+    """
+    return "pong"
+
+
 @router.get("/{user_id}", response_model=User)
 @require_auth
-async def get_user(user_id: int, bearer_token=Depends(HTTPBearer())):
+async def get_user(user_id: str, bearer_token=Depends(HTTPBearer())):
     """
-    Route for getting a user by id.
+    Route for getting a user by id
 
     :param user_id: the id of the user as an integer
     :param bearer_token: the bearer token for authorization
@@ -64,7 +74,7 @@ async def get_user(user_id: int, bearer_token=Depends(HTTPBearer())):
 @require_auth
 async def add_user(user: User, bearer_token=Depends(HTTPBearer())):
     """
-    Route for adding a new user.
+    Route for adding a new user
 
     :param user: the user to be added
     :param bearer_token: the bearer token for authorization
@@ -72,8 +82,6 @@ async def add_user(user: User, bearer_token=Depends(HTTPBearer())):
     :raises HTTPException: if authorization is invalid
     """
     try:
-        # TODO(adipopbv): change pydantic implementation to something that works (
-        #  like taking params from request body)
         user = services.add_user(user)
     except DuplicateError:
         raise HTTPException(status_code=409, detail="User already exists")
