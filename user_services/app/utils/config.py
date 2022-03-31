@@ -30,6 +30,6 @@ class AppConfig:
         env = os.getenv("ENV", ".config")
         if env == ".config":
             config = ConfigParser()
-            config.read([".config", "../.config"])
+            config.read([".config", ".test.config"])
             return config
         raise NotFoundError("config file not found")
