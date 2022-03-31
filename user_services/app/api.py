@@ -52,7 +52,7 @@ async def ping():
     return "pong"
 
 
-@router.get("/{user_id}", response_model=User)
+@router.get("/{user_id}", response_model=User, status_code=200)
 @require_auth
 async def get_user(user_id: str, bearer_token=Depends(HTTPBearer())):
     """
@@ -70,7 +70,7 @@ async def get_user(user_id: str, bearer_token=Depends(HTTPBearer())):
     return user
 
 
-@router.post("", response_model=User)
+@router.post("", response_model=User, status_code=201)
 @require_auth
 async def add_user(user: User, bearer_token=Depends(HTTPBearer())):
     """

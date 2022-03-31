@@ -30,17 +30,18 @@ class Repository:
         """
         return [*self.entities.values()]
 
-    def add(self, entity) -> None:
+    def add(self, entity) -> Any:
         """
         Add an entity to the repository
 
         :param entity: The entity to be added
-        :return: None
+        :return: The entity
         :raises: DuplicateError: If the entity already exists
         """
         if entity.id in self.entities:
             raise DuplicateError(entity.id)
         self.entities[entity.id] = entity
+        return self.entities[entity.id]
 
     def update(self, entity) -> None:
         """
@@ -73,4 +74,3 @@ class Repository:
         :return: None
         """
         self.entities = {}
-

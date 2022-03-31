@@ -18,7 +18,7 @@ class UserServices:
         """
         return self.repo.get_one(user_id)
 
-    def add_user(self, user: User):
+    def add_user(self, user: User) -> User:
         """
         Adds a user
 

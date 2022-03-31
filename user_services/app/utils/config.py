@@ -17,7 +17,7 @@ class AppConfig:
             try:
                 cls.auth0_config = cls.__config["AUTH0"]
             except KeyError:
-                raise NotFoundError("auth 0 config not found")
+                raise NotFoundError("auth0 config not found")
         return cls.__instance
 
     @staticmethod
@@ -30,6 +30,6 @@ class AppConfig:
         env = os.getenv("ENV", ".config")
         if env == ".config":
             config = ConfigParser()
-            config.read(".config")
+            config.read([".config", "../.config"])
             return config
         raise NotFoundError("config file not found")
