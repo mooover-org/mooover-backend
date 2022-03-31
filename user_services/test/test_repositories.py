@@ -1,8 +1,8 @@
 import pytest
 
+from app.domain.entities import Entity
 from app.domain.errors import NotFoundError, DuplicateError
 from app.repositories import Repository
-from domain.entities import Entity
 
 
 class TestRepository:

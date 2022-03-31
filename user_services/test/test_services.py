@@ -1,9 +1,9 @@
 import pytest
 
+from app.domain.entities import User
 from app.domain.errors import NotFoundError, DuplicateError
 from app.repositories import Repository
 from app.services import UserServices
-from domain.entities import User
 
 
 class TestUserServices:
