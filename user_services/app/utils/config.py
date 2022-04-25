@@ -7,17 +7,19 @@ from app.domain.errors import NotFoundError
 class AppConfig:
     """The configurations of the app at runtime"""
     __instance = None
-    __config = None
+    config = None
     auth0_config = None
+    neo4j_config = None
 
     def __new__(cls):
         if cls.__instance is None:
             cls.__instance = super(AppConfig, cls).__new__(cls)
-            cls.__config = cls._load_config()
+            cls.config = cls._load_config()
             try:
-                cls.auth0_config = cls.__config["AUTH0"]
-            except KeyError:
-                raise NotFoundError("auth0 config not found")
+                cls.auth0_config = cls.config["AUTH0"]
+                cls.neo4j_config = cls.config["NEO4J"]
+            except KeyError as e:
+                raise NotFoundError(f"{e} config not found")
         return cls.__instance
 
     @staticmethod

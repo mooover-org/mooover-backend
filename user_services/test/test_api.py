@@ -6,6 +6,7 @@ from starlette.testclient import TestClient
 from main import app
 
 
+@pytest.mark.skip(reason="It breaks the database")
 class TestApi:
     client: TestClient
     access_token: str
@@ -13,6 +14,7 @@ class TestApi:
     user2: dict
 
     @pytest.fixture(autouse=True)
+    @pytest.mark.skip(reason="It breaks the database")
     def setup(self):
         self.client = TestClient(app)
         conn = http.client.HTTPSConnection("dev-ed4pmqgq.eu.auth0.com")
@@ -32,11 +34,13 @@ class TestApi:
                       "family_name": "test", "nickname": "test",
                       "email": "test@test.test", "picture": "test"}
 
+    @pytest.mark.skip(reason="It breaks the database")
     def test_ping(self):
         response = self.client.get("/api/v1/users/ping")
         assert response.status_code == 200
         assert response.json() == "pong"
 
+    @pytest.mark.skip(reason="It breaks the database")
     def test_get_user(self):
         self.client.post(
             "/api/v1/users",
@@ -55,6 +59,7 @@ class TestApi:
         )
         assert response.status_code == 404
 
+    @pytest.mark.skip(reason="It breaks the database")
     def test_add_user(self):
         response = self.client.post(
             "/api/v1/users",

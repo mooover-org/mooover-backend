@@ -1,18 +1,18 @@
 import functools
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer
 
 from app.domain.errors import NotFoundError, DuplicateError
-from app.domain.entities import User
-from app.repositories import Repository
+from app.domain.models import User
+from app.repositories import Neo4JUserRepository
 from app.services import UserServices
 from app.utils.config import AppConfig
 from app.utils.validators import JwtValidator
 
 router = APIRouter()
-services = UserServices(Repository())
+services = UserServices(Neo4JUserRepository())
 
 jwt_validator = JwtValidator(AppConfig().auth0_config)
 
@@ -52,7 +52,20 @@ async def ping():
     return "pong"
 
 
-@router.get("/{user_id}", response_model=User, status_code=200)
+@router.get("/auth", response_model=str, status_code=200)
+@require_auth
+async def auth(bearer_token=Depends(HTTPBearer())):
+    """
+    Route for checking if the user is authenticated
+
+    :param bearer_token: the bearer token for authorization
+    :return: a string saying "authenticated"
+    :raises HTTPException: if authorization is invalid
+    """
+    return "authenticated"
+
+
+@router.get("/{user_id}", status_code=200)
 @require_auth
 async def get_user(user_id: str, bearer_token=Depends(HTTPBearer())):
     """
@@ -67,22 +80,24 @@ async def get_user(user_id: str, bearer_token=Depends(HTTPBearer())):
         user = services.get_user(user_id)
     except NotFoundError:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return user.to_dict()
 
 
-@router.post("", response_model=User, status_code=201)
+@router.post("/", status_code=201)
 @require_auth
-async def add_user(user: User, bearer_token=Depends(HTTPBearer())):
+async def add_user(request: Request, bearer_token=Depends(HTTPBearer())):
     """
     Route for adding a new user
 
-    :param user: the user to be added
+    :param request: the request object containing the user to be added
     :param bearer_token: the bearer token for authorization
     :return: the newly added user
     :raises HTTPException: if authorization is invalid
     """
     try:
-        user = services.add_user(user)
+        json_data = await request.json()
+        user = User.from_dict(json_data)
+        services.add_user(user)
     except DuplicateError:
         raise HTTPException(status_code=409, detail="User already exists")
-    return user
+    return user.to_dict()
