@@ -1,6 +1,6 @@
 import pytest
 
-from app.domain.entities import Entity
+from app.domain.models import Entity
 from app.domain.errors import NotFoundError, DuplicateError
 from app.repositories import Repository
 

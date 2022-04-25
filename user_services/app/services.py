@@ -1,4 +1,4 @@
-from app.domain.entities import User
+from app.domain.models import User
 from app.repositories import Repository
 
 
@@ -18,7 +18,7 @@ class UserServices:
         """
         return self.repo.get_one(user_id)
 
-    def add_user(self, user: User) -> User:
+    def add_user(self, user: User) -> None:
         """
         Adds a user
 
@@ -26,4 +26,14 @@ class UserServices:
         :return: the added user
         "raises DuplicateError: if the user already exists in the repository
         """
-        return self.repo.add(user)
+        self.repo.add(user)
+
+    def get_user_steps(self, user_id: str) -> int:
+        """
+        Gets the steps of a user
+
+        :param user_id: the id of the user
+        :return: the steps of the user
+        "raises NotFoundError: if the user cannot be found in the repository
+        """
+        return self.repo.get_one(user_id).steps
