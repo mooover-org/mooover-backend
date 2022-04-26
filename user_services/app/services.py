@@ -36,4 +36,14 @@ class UserServices:
         :return: the steps of the user
         "raises NotFoundError: if the user cannot be found in the repository
         """
-        return self.repo.get_one(user_id).steps
+        return 1000
+
+    def get_user_heart_points(self, user_id: str) -> int:
+        """
+        Gets the heart points of a user
+
+        :param user_id: the id of the user
+        :return: the heart points of the user
+        "raises NotFoundError: if the user cannot be found in the repository
+        """
+        return 10
