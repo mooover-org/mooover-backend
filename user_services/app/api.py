@@ -119,21 +119,3 @@ async def get_user_steps(user_id: str, bearer_token=Depends(HTTPBearer())):
     except NotFoundError:
         raise HTTPException(status_code=404, detail="User not found")
     return steps
-
-
-@router.get("/{user_id}/heartPoints", status_code=200)
-@require_auth
-async def get_user_heart_points(user_id: str, bearer_token=Depends(HTTPBearer())):
-    """
-    Route for getting a user's heart points
-
-    :param user_id: the id of the user as an integer
-    :param bearer_token: the bearer token for authorization
-    :return: the corresponding user's heart points
-    :raises HTTPException: if user not found or authorization is invalid
-    """
-    try:
-        heart_points = services.get_user_heart_points(user_id)
-    except NotFoundError:
-        raise HTTPException(status_code=404, detail="User not found")
-    return heart_points
