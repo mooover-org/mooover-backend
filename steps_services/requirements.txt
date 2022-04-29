@@ -19,3 +19,4 @@ requests==2.27.1
 py2neo==2021.2.3
 graphene==3.0.0
 starlette-graphene3==0.5.1
+httpx==0.22.0

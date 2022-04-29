@@ -10,6 +10,7 @@ class AppConfig:
     config = None
     auth0_config = None
     neo4j_config = None
+    app_config = None
 
     def __new__(cls):
         if cls.__instance is None:
@@ -18,6 +19,7 @@ class AppConfig:
             try:
                 cls.auth0_config = cls.config["AUTH0"]
                 cls.neo4j_config = cls.config["NEO4J"]
+                cls.app_config = cls.config["APP"]
             except KeyError as e:
                 raise NotFoundError(f"{e} config not found")
         return cls.__instance

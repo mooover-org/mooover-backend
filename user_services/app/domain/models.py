@@ -39,6 +39,8 @@ class User(Entity):
     email: str = Property()
     picture: str = Property()
 
+    steps: int = Property()
+
     @staticmethod
     def from_dict(data: dict):
         """
@@ -55,6 +57,7 @@ class User(Entity):
         user.nickname = data.get("nickname")
         user.email = data.get("email")
         user.picture = data.get("picture")
+        user.steps = data.get("steps")
         return user
 
     def to_dict(self) -> dict:
@@ -71,4 +74,5 @@ class User(Entity):
             "nickname": self.nickname,
             "email": self.email,
             "picture": self.picture,
+            "steps": self.steps,
         }

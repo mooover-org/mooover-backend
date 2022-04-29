@@ -5,7 +5,6 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer
 
 from app.domain.errors import NotFoundError, DuplicateError
-from app.domain.models import Steps
 from app.services import StepsServices
 from app.utils.config import AppConfig
 from app.utils.validators import JwtValidator
@@ -62,3 +61,59 @@ async def auth(bearer_token=Depends(HTTPBearer())):
     :raises HTTPException: if authorization is invalid
     """
     return "authenticated"
+
+
+@router.get("/{user_id}", status_code=200)
+@require_auth
+async def get_steps(user_id: str, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for getting the steps for a user
+
+    :param user_id: the user's id
+    :param bearer_token: the bearer token for authorization
+    :return: the steps for the user
+    :raises HTTPException: if authorization is invalid
+    :raises NotFoundError: if the user is not found
+    """
+    try:
+        return services.get_steps(user_id, bearer_token.credentials)
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail="User not found")
+
+
+@router.put("/{user_id}", status_code=200)
+@require_auth
+async def update_steps(user_id: str, steps: int, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for updating the steps for a user
+
+    :param user_id: the user's id
+    :param steps: the steps to update
+    :param bearer_token: the bearer token for authorization
+    :return: the status of the operation
+    :raises HTTPException: if authorization is invalid
+    :raises NotFoundError: if the user is not found
+    """
+    try:
+        services.update_steps(user_id, steps, bearer_token.credentials)
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail="User not found")
+
+
+@router.put("/add-to-steps/{user_id}", status_code=200)
+@require_auth
+async def add_to_steps(user_id: str, steps: int, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for adding to a user's current steps
+
+    :param user_id: the user's id
+    :param steps: the steps to add
+    :param bearer_token: the bearer token for authorization
+    :return: the status of the operation
+    :raises HTTPException: if authorization is invalid
+    :raises NotFoundError: if the user is not found
+    """
+    try:
+        services.add_to_steps(user_id, steps, bearer_token.credentials)
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail="User not found")

@@ -103,19 +103,22 @@ async def add_user(request: Request, bearer_token=Depends(HTTPBearer())):
     return user.to_dict()
 
 
-@router.get("/{user_id}/steps", status_code=200)
+@router.put("/{user_id}", status_code=200)
 @require_auth
-async def get_user_steps(user_id: str, bearer_token=Depends(HTTPBearer())):
+async def update_user(user_id: str, request: Request, bearer_token=Depends(HTTPBearer())):
     """
-    Route for getting a user's steps
+    Route for updating a user
 
     :param user_id: the id of the user as an integer
+    :param request: the request object containing the user to be updated
     :param bearer_token: the bearer token for authorization
-    :return: the corresponding user's steps
+    :return: the updated user
     :raises HTTPException: if user not found or authorization is invalid
     """
     try:
-        steps = services.get_user_steps(user_id)
+        json_data = await request.json()
+        user = User.from_dict(json_data)
+        services.update_user(user_id, user)
     except NotFoundError:
         raise HTTPException(status_code=404, detail="User not found")
-    return steps
+    return user.to_dict()

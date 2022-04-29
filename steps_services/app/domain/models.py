@@ -28,26 +28,3 @@ class Entity(Model):
         return {
             "id": self.id,
         }
-
-
-class Steps(Entity):
-    """The base steps model"""
-
-    @staticmethod
-    def from_dict(data: dict):
-        """
-        Convert dict to steps
-
-        :param data: the data to convert
-        :return: The steps
-        """
-        steps = Steps()
-        return steps
-
-    def to_dict(self) -> dict:
-        """
-        Convert steps to dict
-
-        :return: The dict representation of the steps
-        """
-        return {}

@@ -131,8 +131,7 @@ class Neo4JUserRepository(Repository):
         :return: None
         :raises: NotFoundError: If the user does not exist
         """
-        if not self.entities.exists(entity):
-            raise NotFoundError(entity.id)
+        self.get_one(entity.id)
         self.entities.save(entity)
 
     def delete(self, entity_id: str) -> None:
