@@ -5,14 +5,12 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer
 
 from app.domain.errors import NotFoundError, DuplicateError
-from app.domain.models import User
-from app.repositories import Neo4JUserRepository
-from app.services import UserServices
+from app.services import StepsServices
 from app.utils.config import AppConfig
 from app.utils.validators import JwtValidator
 
 router = APIRouter()
-services = UserServices(Neo4JUserRepository())
+services = StepsServices()
 
 jwt_validator = JwtValidator(AppConfig().auth0_config)
 
@@ -67,58 +65,55 @@ async def auth(bearer_token=Depends(HTTPBearer())):
 
 @router.get("/{user_id}", status_code=200)
 @require_auth
-async def get_user(user_id: str, bearer_token=Depends(HTTPBearer())):
+async def get_steps(user_id: str, bearer_token=Depends(HTTPBearer())):
     """
-    Route for getting a user by id
+    Route for getting the steps for a user
 
-    :param user_id: the id of the user as an integer
+    :param user_id: the user's id
     :param bearer_token: the bearer token for authorization
-    :return: the corresponding user
-    :raises HTTPException: if user not found or authorization is invalid
+    :return: the steps for the user
+    :raises HTTPException: if authorization is invalid
+    :raises NotFoundError: if the user is not found
     """
     try:
-        user = services.get_user(user_id)
+        return services.get_steps(user_id, bearer_token.credentials)
     except NotFoundError:
         raise HTTPException(status_code=404, detail="User not found")
-    return user.to_dict()
-
-
-@router.post("/", status_code=201)
-@require_auth
-async def add_user(request: Request, bearer_token=Depends(HTTPBearer())):
-    """
-    Route for adding a new user
-
-    :param request: the request object containing the user to be added
-    :param bearer_token: the bearer token for authorization
-    :return: the newly added user
-    :raises HTTPException: if authorization is invalid
-    """
-    try:
-        json_data = await request.json()
-        user = User.from_dict(json_data)
-        services.add_user(user)
-    except DuplicateError:
-        raise HTTPException(status_code=409, detail="User already exists")
-    return user.to_dict()
 
 
 @router.put("/{user_id}", status_code=200)
 @require_auth
-async def update_user(user_id: str, request: Request, bearer_token=Depends(HTTPBearer())):
+async def update_steps(user_id: str, steps: int, bearer_token=Depends(HTTPBearer())):
     """
-    Route for updating a user
+    Route for updating the steps for a user
 
-    :param user_id: the id of the user as an integer
-    :param request: the request object containing the user to be updated
+    :param user_id: the user's id
+    :param steps: the steps to update
     :param bearer_token: the bearer token for authorization
-    :return: the updated user
-    :raises HTTPException: if user not found or authorization is invalid
+    :return: the status of the operation
+    :raises HTTPException: if authorization is invalid
+    :raises NotFoundError: if the user is not found
     """
     try:
-        json_data = await request.json()
-        user = User.from_dict(json_data)
-        services.update_user(user_id, user)
+        services.update_steps(user_id, steps, bearer_token.credentials)
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail="User not found")
+
+
+@router.put("/add-to-steps/{user_id}", status_code=200)
+@require_auth
+async def add_to_steps(user_id: str, steps: int, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for adding to a user's current steps
+
+    :param user_id: the user's id
+    :param steps: the steps to add
+    :param bearer_token: the bearer token for authorization
+    :return: the status of the operation
+    :raises HTTPException: if authorization is invalid
+    :raises NotFoundError: if the user is not found
+    """
+    try:
+        services.add_to_steps(user_id, steps, bearer_token.credentials)
     except NotFoundError:
         raise HTTPException(status_code=404, detail="User not found")
-    return user.to_dict()

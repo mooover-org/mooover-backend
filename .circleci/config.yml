@@ -21,8 +21,25 @@ jobs:
           command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
       - codecov/upload:
           file: coverage.xml
+  test-steps-services:
+    docker:
+      - image: cimg/python:3.8.0
+    steps:
+      - checkout
+      - run:
+          name: Prepare files
+          command: cp -r ~/project/steps_services/. .
+      - run: 
+          name: Install dependencies
+          command: pip install -r requirements.txt
+      - run:
+          name: Run tests
+          command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
+      - codecov/upload:
+          file: coverage.xml
   
 workflows:
   test-all-services:
     jobs:
       - test-user-services
+      - test-steps-services

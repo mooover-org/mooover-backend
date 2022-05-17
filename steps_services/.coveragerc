@@ -1,0 +1,3 @@
+[run]
+omit = */api.py
+       */main.py

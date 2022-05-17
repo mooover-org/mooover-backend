@@ -14,7 +14,7 @@ class UserServices:
 
         :param user_id: the id of the user
         :return: the user
-        "raises NotFoundError: if the user cannot be found in the repository
+        :raises NotFoundError: if the user cannot be found in the repository
         """
         return self.repo.get_one(user_id)
 
@@ -23,27 +23,19 @@ class UserServices:
         Adds a user
 
         :param user: the user to be added
-        :return: the added user
-        "raises DuplicateError: if the user already exists in the repository
+        :return: None
+        :raises DuplicateError: if the user already exists in the repository
         """
         self.repo.add(user)
 
-    def get_user_steps(self, user_id: str) -> int:
+    def update_user(self, user_id: str, user: User) -> None:
         """
-        Gets the steps of a user
+        Updates a user
 
         :param user_id: the id of the user
-        :return: the steps of the user
-        "raises NotFoundError: if the user cannot be found in the repository
+        :param user: the user with the updated values
+        :return: None
+        :raises NotFoundError: if the user cannot be found in the repository
         """
-        return 1000
-
-    def get_user_heart_points(self, user_id: str) -> int:
-        """
-        Gets the heart points of a user
-
-        :param user_id: the id of the user
-        :return: the heart points of the user
-        "raises NotFoundError: if the user cannot be found in the repository
-        """
-        return 10
+        user.id = user_id
+        self.repo.update(user)
