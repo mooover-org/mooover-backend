@@ -1,10 +1,10 @@
 import functools
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer
 
-from app.domain.errors import NotFoundError, DuplicateError
+from app.domain.errors import NotFoundError
 from app.services import StepsServices
 from app.utils.config import AppConfig
 from app.utils.validators import JwtValidator
@@ -115,5 +115,42 @@ async def add_to_steps(user_id: str, steps: int, bearer_token=Depends(HTTPBearer
     """
     try:
         services.add_to_steps(user_id, steps, bearer_token.credentials)
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail="User not found")
+
+
+@router.get("/daily-goal/{user_id}", status_code=200)
+@require_auth
+async def get_daily_steps_goal(user_id: str, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for getting the daily steps goal for a user
+
+    :param user_id: the user's id
+    :param bearer_token: the bearer token for authorization
+    :return: the daily steps goal for the user
+    :raises HTTPException: if authorization is invalid
+    :raises NotFoundError: if the user is not found
+    """
+    try:
+        return services.get_daily_steps_goal(user_id, bearer_token.credentials)
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail="User not found")
+
+
+@router.put("/daily-goal/{user_id}", status_code=200)
+@require_auth
+async def update_daily_steps_goal(user_id: str, daily_steps_goal: int, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for updating a user's daily steps goal
+
+    :param user_id: the user's id
+    :param daily_steps_goal: the new daily steps goal
+    :param bearer_token: the bearer token for authorization
+    :return: the status of the operation
+    :raises HTTPException: if authorization is invalid
+    :raises NotFoundError: if the user is not found
+    """
+    try:
+        services.update_daily_steps_goal(user_id, daily_steps_goal, bearer_token.credentials)
     except NotFoundError:
         raise HTTPException(status_code=404, detail="User not found")
