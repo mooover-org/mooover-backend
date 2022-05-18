@@ -40,6 +40,9 @@ class User(Entity):
     picture: str = Property()
 
     steps: int = Property()
+    daily_steps_goal: int = Property()
+
+    app_theme: str = Property()
 
     @staticmethod
     def from_dict(data: dict):
@@ -58,6 +61,8 @@ class User(Entity):
         user.email = data.get("email")
         user.picture = data.get("picture")
         user.steps = data.get("steps")
+        user.daily_steps_goal = data.get("daily_steps_goal")
+        user.app_theme = data.get("app_theme")
         return user
 
     def to_dict(self) -> dict:
@@ -75,4 +80,6 @@ class User(Entity):
             "email": self.email,
             "picture": self.picture,
             "steps": self.steps,
+            "daily_steps_goal": self.daily_steps_goal,
+            "app_theme": self.app_theme,
         }

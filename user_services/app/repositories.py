@@ -119,7 +119,7 @@ class Neo4JUserRepository(Repository):
         :raises: DuplicateError: If the user already exists
         """
         user = self.entities.get(User, entity.id)
-        if self.entities.exists(user):
+        if user and self.entities.exists(user):
             raise DuplicateError(entity.id)
         self.entities.save(entity)
 

@@ -66,3 +66,39 @@ class StepsServices:
                              headers={"Authorization": "Bearer " + credentials})
         if response.status_code != 200:
             raise NotFoundError(f"User with id {user_id} does not exist")
+
+    def update_daily_steps_goal(self, user_id: str, daily_steps_goal: int, credentials: str):
+        """
+        Set the daily steps goal for a user
+
+        :param user_id: The user id
+        :param daily_steps_goal: The daily steps goal
+        :param credentials: The authorization token
+        :return: None
+        :raises NotFoundError: If the user does not exist
+        """
+        response = httpx.get(self.user_services_url + f"/{user_id}",
+                             headers={"Authorization": "Bearer " + credentials})
+        if response.status_code != 200:
+            raise NotFoundError(f"User with id {user_id} does not exist")
+        user_dict = response.json()
+        user_dict["daily_steps_goal"] = daily_steps_goal
+        response = httpx.put(self.user_services_url + f"/{user_id}", json=user_dict,
+                             headers={"Authorization": "Bearer " + credentials})
+        if response.status_code != 200:
+            raise NotFoundError(f"User with id {user_id} does not exist")
+
+    def get_daily_steps_goal(self, user_id: str, credentials: str):
+        """
+        Get the daily steps goal for a user
+
+        :param user_id: The user id
+        :param credentials: The authorization token
+        :return: The daily steps goal
+        :raises NotFoundError: If the user does not exist
+        """
+        response = httpx.get(self.user_services_url + f"/{user_id}",
+                             headers={"Authorization": "Bearer " + credentials})
+        if response.status_code != 200:
+            raise NotFoundError(f"User with id {user_id} does not exist")
+        return response.json()["daily_steps_goal"]
