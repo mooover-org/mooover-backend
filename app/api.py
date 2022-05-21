@@ -3,16 +3,22 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer
+from py2neo.ogm import Repository as N4jDb
 
 from app.domain.errors import NotFoundError, DuplicateError
-from app.domain.models import User
-from app.repositories import Neo4JUserRepository
-from app.services import UserServices
+from app.repositories import Neo4jUserRepository, Neo4jGroupRepository
+from app.services import UserServices, GroupServices
 from app.utils.config import AppConfig
 from app.utils.validators import JwtValidator
 
 router = APIRouter()
-services = UserServices(Neo4JUserRepository())
+database = N4jDb(AppConfig().neo4j_config['HOST'],
+                 user=AppConfig().neo4j_config['USER'],
+                 password=AppConfig().neo4j_config['PASSWORD'])
+user_repository = Neo4jUserRepository(database)
+group_repository = Neo4jGroupRepository(database)
+user_services = UserServices(user_repository)
+group_services = GroupServices(group_repository)
 
 jwt_validator = JwtValidator(AppConfig().auth0_config)
 
@@ -65,25 +71,25 @@ async def auth(bearer_token=Depends(HTTPBearer())):
     return "authenticated"
 
 
-@router.get("/{user_id}", status_code=200)
+@router.get("/user/{sub}", status_code=200)
 @require_auth
-async def get_user(user_id: str, bearer_token=Depends(HTTPBearer())):
+async def get_user(sub: str, bearer_token=Depends(HTTPBearer())):
     """
     Route for getting a user by id
 
-    :param user_id: the id of the user as an integer
+    :param sub: the sub of the user
     :param bearer_token: the bearer token for authorization
     :return: the corresponding user
     :raises HTTPException: if user not found or authorization is invalid
     """
     try:
-        user = services.get_user(user_id)
+        user = user_services.get_user(sub)
     except NotFoundError:
         raise HTTPException(status_code=404, detail="User not found")
     return user.to_dict()
 
 
-@router.post("/", status_code=201)
+@router.post("/user/", status_code=201)
 @require_auth
 async def add_user(request: Request, bearer_token=Depends(HTTPBearer())):
     """
@@ -96,20 +102,26 @@ async def add_user(request: Request, bearer_token=Depends(HTTPBearer())):
     """
     try:
         json_data = await request.json()
-        user = User.from_dict(json_data)
-        services.add_user(user)
+        user_services.add_user(
+            json_data["sub"],
+            json_data["name"],
+            json_data["given_name"],
+            json_data["family_name"],
+            json_data["nickname"],
+            json_data["email"],
+            json_data["picture"],
+        )
     except DuplicateError:
         raise HTTPException(status_code=409, detail="User already exists")
-    return user.to_dict()
 
 
-@router.put("/{user_id}", status_code=200)
+@router.put("/user/{sub}", status_code=200)
 @require_auth
-async def update_user(user_id: str, request: Request, bearer_token=Depends(HTTPBearer())):
+async def update_user(sub: str, request: Request, bearer_token=Depends(HTTPBearer())):
     """
     Route for updating a user
 
-    :param user_id: the id of the user as an integer
+    :param sub: the sub of the user to be updated
     :param request: the request object containing the user to be updated
     :param bearer_token: the bearer token for authorization
     :return: the updated user
@@ -117,8 +129,117 @@ async def update_user(user_id: str, request: Request, bearer_token=Depends(HTTPB
     """
     try:
         json_data = await request.json()
-        user = User.from_dict(json_data)
-        services.update_user(user_id, user)
+        user_services.update_user(
+            sub,
+            json_data["name"],
+            json_data["given_name"],
+            json_data["family_name"],
+            json_data["nickname"],
+            json_data["email"],
+            json_data["picture"],
+            json_data["steps"],
+            json_data["daily_steps_goal"],
+            json_data["app_theme"],
+        )
     except NotFoundError:
         raise HTTPException(status_code=404, detail="User not found")
-    return user.to_dict()
+
+
+@router.get("/user/{sub}/group", status_code=200)
+@require_auth
+async def get_user_group(sub: str, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for getting a user's group
+
+    :param sub: the sub of the user
+    :param bearer_token: the bearer token for authorization
+    :return: the corresponding group
+    :raises HTTPException: if user not found or authorization is invalid
+    """
+    try:
+        group = user_services.get_user_group(sub)
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail="User not found")
+    return group.to_dict()
+
+
+@router.get("/group/{nickname}", status_code=200)
+@require_auth
+async def get_group(nickname: str, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for getting a group by id
+
+    :param nickname: the nickname of the group
+    :param bearer_token: the bearer token for authorization
+    :return: the corresponding group
+    :raises HTTPException: if group not found or authorization is invalid
+    """
+    try:
+        group = group_services.get_group(nickname)
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail="Group not found")
+    return group.to_dict()
+
+
+@router.post("/group/", status_code=201)
+@require_auth
+async def add_group(request: Request, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for adding a new group
+
+    :param request: the request object containing the group to be added
+    :param bearer_token: the bearer token for authorization
+    :return: the newly added group
+    :raises HTTPException: if authorization is invalid
+    """
+    try:
+        json_data = await request.json()
+        group_services.add_group(
+            user_services.get_user(json_data["sub"]),
+            json_data["name"],
+            json_data["nickname"],
+        )
+    except DuplicateError:
+        raise HTTPException(status_code=409, detail="Group already exists")
+
+
+@router.put("/group/{nickname}", status_code=200)
+@require_auth
+async def update_group(nickname: str, request: Request, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for updating a group
+
+    :param nickname: the nickname of the group to be updated
+    :param request: the request object containing the group to be updated
+    :param bearer_token: the bearer token for authorization
+    :return: the updated group
+    :raises HTTPException: if group not found or authorization is invalid
+    """
+    try:
+        json_data = await request.json()
+        group_services.update_group(
+            nickname,
+            json_data["name"],
+            json_data["steps"],
+            json_data["daily_steps_goal"],
+            json_data["weekly_steps_goal"]
+        )
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail="Group not found")
+
+
+@router.delete("/group/{nickname}", status_code=200)
+@require_auth
+async def delete_group(nickname: str, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for deleting a group
+
+    :param nickname: the nickname of the group to be deleted
+    :param bearer_token: the bearer token for authorization
+    :return: the deleted group
+    :raises HTTPException: if group not found or authorization is invalid
+    """
+    try:
+        group_services.delete_group(nickname)
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail="Group not found")
