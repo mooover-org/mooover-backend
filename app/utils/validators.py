@@ -42,7 +42,6 @@ class JwtValidator:
                     audience=self.auth0_config["AUDIENCE"],
                     issuer=self.auth0_config["ISSUER"],
                 )
-                print("authorization token is valid")
         except jwt.ExpiredSignatureError as e:
             raise HTTPException(status_code=401, detail="Token is expired")
         except jwt.JWTClaimsError as e:

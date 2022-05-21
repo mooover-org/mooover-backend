@@ -18,3 +18,4 @@ starlette==0.17.1
 requests==2.27.1
 graphene==3.0.0
 starlette-graphene3==0.5.1
+neo4j==4.4.3

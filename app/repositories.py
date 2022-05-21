@@ -1,6 +1,6 @@
-from typing import Any
+from typing import Any, List
 
-from py2neo.ogm import Repository as N4jDb
+from neo4j import Neo4jDriver, GraphDatabase, Result
 
 from app.domain.errors import NotFoundError, DuplicateError
 from app.domain.models import User, Group
@@ -23,10 +23,10 @@ class Repository:
         :return: The entity
         """
         if entity_id not in self.entities:
-            raise NotFoundError(entity_id)
+            raise NotFoundError("Entity not found")
         return self.entities[entity_id]
 
-    def get_all(self) -> list:
+    def get_all(self) -> List[Any]:
         """
         Get all entities
 
@@ -40,10 +40,10 @@ class Repository:
 
         :param entity: The entity to be added
         :return: None
-        :raises: DuplicateError: If the entity already exists
+        :raises DuplicateError: If the entity already exists
         """
         if entity.id in self.entities:
-            raise DuplicateError(entity.id)
+            raise DuplicateError("Entity already exists")
         self.entities[entity.id] = entity
 
     def update(self, entity) -> None:
@@ -52,10 +52,10 @@ class Repository:
 
         :param entity: The entity to be updated
         :return: None
-        :raises: NotFoundError: If the entity does not exist
+        :raises NotFoundError: If the entity does not exist
         """
         if entity.id not in self.entities:
-            raise NotFoundError(entity.id)
+            raise NotFoundError("Entity not found")
         self.entities[entity.id] = entity
 
     def delete(self, entity_id) -> None:
@@ -64,30 +64,24 @@ class Repository:
 
         :param entity_id: The id of the entity to be deleted
         :return: None
-        :raises: NotFoundError: If the entity does not exist
+        :raises NotFoundError: If the entity does not exist
         """
         if entity_id not in self.entities:
-            raise NotFoundError(entity_id)
+            raise NotFoundError("Entity not found")
         del self.entities[entity_id]
-
-    def delete_all(self) -> None:
-        """
-        Delete all entities from the repository
-
-        :return: None
-        """
-        self.entities = {}
 
 
 class Neo4jUserRepository(Repository):
     """Neo4J repository for users"""
 
-    entities: N4jDb
+    driver: Neo4jDriver
 
-    def __init__(self, database: N4jDb = N4jDb(AppConfig().neo4j_config['HOST'],
-                                               user=AppConfig().neo4j_config['USER'],
-                                               password=AppConfig().neo4j_config['PASSWORD'])) -> None:
-        super().__init__(database)
+    def __init__(self, driver: Neo4jDriver = GraphDatabase.driver(
+        uri=AppConfig().neo4j_config['HOST'],
+        auth=(AppConfig().neo4j_config['USER'],
+              AppConfig().neo4j_config['PASSWORD']))) -> None:
+        self.driver = driver
+        super().__init__()
 
     def get_one(self, user_id: str) -> User:
         """
@@ -95,20 +89,40 @@ class Neo4jUserRepository(Repository):
 
         :param user_id: The id of the user
         :return: The user
-        :raises: NotFoundError: If the user does not exist
+        :raises NotFoundError: If the user does not exist
         """
-        user = self.entities.get(User, user_id)
-        if not user:
-            raise NotFoundError(user_id)
-        return user
 
-    def get_all(self) -> list:
+        def _get_user(tx, primary_key: str):
+            result: Result = tx.run(
+                f"MATCH (u:User {{{User.__primarykey__}: '{primary_key}'}}) "
+                f"RETURN u "
+                f"LIMIT 1"
+            )
+            record = result.single()
+            if record:
+                return User(**record.data()['u'])
+            else:
+                raise NotFoundError("User not found")
+
+        with self.driver.session() as session:
+            return session.read_transaction(_get_user, user_id)
+
+    def get_all(self) -> List[User]:
         """
         Get all users
 
         :return: A list of all users
         """
-        return self.entities.match(User)
+
+        def _get_all_users(tx):
+            result = tx.run(
+                f"MATCH (u:User) "
+                f"RETURN u"
+            )
+            return [User(**record.data()['u']) for record in result]
+
+        with self.driver.session() as session:
+            return session.read_transaction(_get_all_users)
 
     def add(self, user: User) -> None:
         """
@@ -116,12 +130,20 @@ class Neo4jUserRepository(Repository):
 
         :param user: The user to be added
         :return: None
-        :raises: DuplicateError: If the user already exists
+        :raises DuplicateError: If the user already exists
         """
-        user = self.entities.get(User, user.id)
-        if user and self.entities.exists(user):
-            raise DuplicateError(user.id)
-        self.entities.save(user)
+
+        def _add_user(tx, user: User):
+            tx.run(
+                f"CREATE (u:User {user.as_str_dict()})",
+            )
+
+        try:
+            self.get_one(getattr(user, User.__primarykey__))
+            raise DuplicateError("User already exists")
+        except NotFoundError:
+            with self.driver.session() as session:
+                session.write_transaction(_add_user, user)
 
     def update(self, user: User) -> None:
         """
@@ -129,10 +151,19 @@ class Neo4jUserRepository(Repository):
 
         :param user: The user to be updated
         :return: None
-        :raises: NotFoundError: If the user does not exist
+        :raises NotFoundError: If the user does not exist
         """
-        self.get_one(user.id)
-        self.entities.save(user)
+
+        def _update_user(tx, user: User):
+            tx.run(
+                f"MATCH (u:User {{{User.__primarykey__}: "
+                f"'{getattr(user, User.__primarykey__)}'}}) "
+                f"SET u = {user.as_str_dict()}"
+            )
+
+        self.get_one(getattr(user, User.__primarykey__))
+        with self.driver.session() as session:
+            session.write_transaction(_update_user, user)
 
     def delete(self, user_id: str) -> None:
         """
@@ -142,19 +173,50 @@ class Neo4jUserRepository(Repository):
         :return: None
         :raises: NotFoundError: If the user does not exist
         """
-        user = self.entities.get(User, user_id)
-        self.entities.delete(user)
+
+        def _delete_user(tx, primary_key: str):
+            tx.run(
+                f"MATCH (u:User {{{User.__primarykey__}: '{primary_key}'}}) "
+                f"DETACH DELETE u"
+            )
+
+        self.get_one(user_id)
+        with self.driver.session() as session:
+            session.write_transaction(_delete_user, user_id)
+
+    def get_groups_of_user(self, user_id: str) -> List[Group]:
+        """
+        Get all the groups of a user
+
+        :param user_id: The id of the user
+        :return: A list of groups
+        :raises NotFoundError: If the user does not exist
+        """
+
+        def _get_groups_of_user(tx, primary_key: str):
+            result = tx.run(
+                f"MATCH (u:User {{{User.__primarykey__}: '{primary_key}'}}) "
+                f"-[:MEMBER_OF]->(g:Group) "
+                f"RETURN g",
+            )
+            return [Group(**record.data()['g']) for record in result]
+
+        self.get_one(user_id)
+        with self.driver.session() as session:
+            return session.read_transaction(_get_groups_of_user, user_id)
 
 
 class Neo4jGroupRepository(Repository):
     """Neo4J repository for groups"""
 
-    entities: N4jDb
+    driver: Neo4jDriver
 
-    def __init__(self, database: N4jDb = N4jDb(AppConfig().neo4j_config['HOST'],
-                                               group=AppConfig().neo4j_config['USER'],
-                                               password=AppConfig().neo4j_config['PASSWORD'])) -> None:
-        super().__init__(database)
+    def __init__(self, driver: Neo4jDriver = GraphDatabase.driver(
+        uri=AppConfig().neo4j_config['HOST'],
+        auth=(AppConfig().neo4j_config['USER'],
+              AppConfig().neo4j_config['PASSWORD']))) -> None:
+        self.driver = driver
+        super().__init__()
 
     def get_one(self, group_id: str) -> Group:
         """
@@ -162,20 +224,40 @@ class Neo4jGroupRepository(Repository):
 
         :param group_id: The id of the group
         :return: The group
-        :raises: NotFoundError: If the group does not exist
+        :raises NotFoundError: If the group does not exist
         """
-        group = self.entities.get(Group, group_id)
-        if not group:
-            raise NotFoundError(group_id)
-        return group
 
-    def get_all(self) -> list:
+        def _get_group(tx, primary_key: str):
+            result = tx.run(
+                f"MATCH (g:Group {{{Group.__primarykey__}: '{primary_key}'}}) "
+                f"RETURN g "
+                f"LIMIT 1"
+            )
+            record = result.single()
+            if record is not None:
+                return Group(**record.data()['g'])
+            else:
+                raise NotFoundError("Group not found")
+
+        with self.driver.session() as session:
+            return session.read_transaction(_get_group, group_id)
+
+    def get_all(self) -> List[Group]:
         """
         Get all groups
 
         :return: A list of all groups
         """
-        return self.entities.match(Group)
+
+        def _get_all_groups(tx):
+            result = tx.run(
+                f"MATCH (g:Group) "
+                f"RETURN g"
+            )
+            return [Group(**record.data()['g']) for record in result]
+
+        with self.driver.session() as session:
+            return session.read_transaction(_get_all_groups)
 
     def add(self, group: Group) -> None:
         """
@@ -183,12 +265,20 @@ class Neo4jGroupRepository(Repository):
 
         :param group: The group to be added
         :return: None
-        :raises: DuplicateError: If the group already exists
+        :raises DuplicateError: If the group already exists
         """
-        group = self.entities.get(Group, group.id)
-        if group and self.entities.exists(group):
-            raise DuplicateError(group.id)
-        self.entities.save(group)
+
+        def _add_group(tx, group: Group):
+            tx.run(
+                f"CREATE (g:Group {group.as_str_dict()})"
+            )
+
+        try:
+            self.get_one(getattr(group, Group.__primarykey__))
+            raise DuplicateError("Group already exists")
+        except NotFoundError:
+            with self.driver.session() as session:
+                session.write_transaction(_add_group, group)
 
     def update(self, group: Group) -> None:
         """
@@ -196,10 +286,19 @@ class Neo4jGroupRepository(Repository):
 
         :param group: The group to be updated
         :return: None
-        :raises: NotFoundError: If the group does not exist
+        :raises NotFoundError: If the group does not exist
         """
-        self.get_one(group.id)
-        self.entities.save(group)
+
+        def _update_group(tx, group: Group):
+            tx.run(
+                f"MATCH (g:Group {{{Group.__primarykey__}: "
+                f"'{getattr(group, Group.__primarykey__)}'}}) "
+                f"SET g = {group.as_str_dict()}"
+            )
+
+        self.get_one(getattr(group, Group.__primarykey__))
+        with self.driver.session() as session:
+            session.write_transaction(_update_group, group)
 
     def delete(self, group_id: str) -> None:
         """
@@ -209,5 +308,99 @@ class Neo4jGroupRepository(Repository):
         :return: None
         :raises: NotFoundError: If the group does not exist
         """
-        group = self.entities.get(Group, group_id)
-        self.entities.delete(group)
+
+        def _delete_group(tx, primary_key: str):
+            tx.run(
+                f"MATCH (g:Group {{{Group.__primarykey__}: '{primary_key}'}}) "
+                f"DETACH DELETE g"
+            )
+
+        self.get_one(group_id)
+        with self.driver.session() as session:
+            session.write_transaction(_delete_group, group_id)
+
+    def get_members_of_group(self, group_id: str) -> List[User]:
+        """
+        Get all members of a group
+
+        :param group_id: The id of the group
+        :return: A list of all members of the group
+        :raises NotFoundError: If the group does not exist
+        """
+
+        def _get_members_of_group(tx, primary_key: str):
+            result = tx.run(
+                f"MATCH (u:User)-[:MEMBER_OF]->(g:Group "
+                f"{{{Group.__primarykey__}: '{primary_key}'}}) "
+                f"RETURN u"
+            )
+            return [User(**record.data()['u']) for record in result]
+
+        self.get_one(group_id)
+        with self.driver.session() as session:
+            return session.read_transaction(_get_members_of_group, group_id)
+
+    def add_member_to_group(self, user_id: str, group_id: str) -> None:
+        """
+        Add members to a group
+
+        :param user_id: The id of the user to be added
+        :param group_id: The id of the group to be added to
+        :return: None
+        :raises NotFoundError: If the user or group does not exist
+        """
+
+        def _add_member(tx, user_primary_key: str, group_primary_key: str):
+            result = tx.run(
+                f"MATCH (u:User {{{User.__primarykey__}: "
+                f"'{user_primary_key}'}}) "
+                f"RETURN u"
+            )
+            record = result.single()
+            if record:
+                tx.run(
+                    f"MATCH (u:User {{{User.__primarykey__}: "
+                    f"'{user_primary_key}'}}) "
+                    f"MATCH (g:Group {{{Group.__primarykey__}: "
+                    f"'{group_primary_key}'}}) "
+                    f"CREATE (u)-[:MEMBER_OF]->(g)"
+                )
+            else:
+                raise NotFoundError("User not found")
+
+        self.get_one(group_id)
+        with self.driver.session() as session:
+            session.write_transaction(_add_member, user_id, group_id)
+
+    def remove_member_from_group(self, user_id: str, group_id: str) -> None:
+        """
+        Remove members from a group
+
+        :param user_id: The id of the user to be removed
+        :param group_id: The id of the group to be removed from
+        :return: None
+        :raises NotFoundError: If the user or group does not exist
+        """
+
+        def _remove_member(tx, user_primary_key: str, group_primary_key: str):
+            result = tx.run(
+                f"MATCH (u:User {{{User.__primarykey__}:"
+                f"'{user_primary_key}'}}) "
+                f"RETURN u"
+            )
+            record = result.single()
+            if record:
+                tx.run(
+                    f"MATCH (u:User {{{User.__primarykey__}: "
+                    f"'{user_primary_key}'}}) "
+                    f"MATCH (g:Group {{{Group.__primarykey__}: "
+                    f"'{group_primary_key}'}}) "
+                    f"MATCH (u)-[r:MEMBER_OF]->(g) "
+                    f"DELETE r"
+                )
+            else:
+                raise NotFoundError("User not found")
+
+        self.get_one(group_id)
+        with self.driver.session() as session:
+            session.write_transaction(_remove_member, user_id, group_id)
