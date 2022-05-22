@@ -4,7 +4,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer
 
-from app.domain.errors import NotFoundError, DuplicateError, AppError
+from app.domain.errors import NotFoundError, DuplicateError
 from app.repositories import Neo4jUserRepository, Neo4jGroupRepository
 from app.services import UserServices, GroupServices
 from app.utils.config import AppConfig
@@ -224,6 +224,24 @@ async def get_group(group_id: str, bearer_token=Depends(HTTPBearer())):
     return group.as_dict()
 
 
+@router.get("/groups", status_code=200, tags=["group"])
+@require_auth
+async def get_groups(bearer_token=Depends(HTTPBearer())):
+    """
+    Route for getting all groups
+
+    :param bearer_token: the bearer token for authorization
+    :return: the corresponding groups
+    :raises HTTPException: if authorization is invalid
+    """
+    try:
+        groups = group_services.get_groups()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: "
+                                                    f"{str(e)}")
+    return [group.as_dict() for group in groups]
+
+
 @router.post("/groups", status_code=201, tags=["group"])
 @require_auth
 async def add_group(request: Request, bearer_token=Depends(HTTPBearer())):
@@ -272,18 +290,18 @@ async def update_group(group_id: str, request: Request,
     try:
         json_data = await request.json()
         group_services.update_group(
-            group_id,
+            json_data["nickname"],
             json_data["name"],
             json_data["steps"],
             json_data["daily_steps_goal"],
             json_data["weekly_steps_goal"]
         )
-    except NotFoundError:
-        raise HTTPException(status_code=404, detail="Group not found")
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except KeyError:
         raise HTTPException(status_code=400, detail="Missing required fields")
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid fields")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: "
                                                     f"{str(e)}")
@@ -303,5 +321,90 @@ async def delete_group(group_id: str, bearer_token=Depends(HTTPBearer())):
     """
     try:
         group_services.delete_group(group_id)
-    except NotFoundError:
-        raise HTTPException(status_code=404, detail="Group not found")
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: "
+                                                    f"{str(e)}")
+    return {"message": "Group deleted"}
+
+
+@router.get("/groups/{group_id}/members", status_code=200, tags=["group, user"])
+@require_auth
+async def get_members_of_group(group_id: str,
+                               bearer_token=Depends(HTTPBearer())):
+    """
+    Route for getting all members of a group
+
+    :param group_id: the id of the group
+    :param bearer_token: the bearer token for authorization
+    :return: the members of the group
+    :raises HTTPException: if group not found or authorization is invalid
+    """
+    try:
+        members = group_services.get_members_of_group(group_id)
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: "
+                                                    f"{str(e)}")
+    return [member.as_dict() for member in members]
+
+
+@router.post("/groups/{group_id}/members", status_code=200, tags=["group, "
+                                                                  "user"])
+@require_auth
+async def add_member_to_group(group_id: str, request: Request,
+                              bearer_token=Depends(HTTPBearer())):
+    """
+    Route for adding a user to a group
+
+    :param group_id: the id of the group to add the user to
+    :param request: the request object containing the user to be added
+    :param bearer_token: the bearer token for authorization
+    :return: the newly added user
+    :raises HTTPException: if authorization is invalid or if user already
+    belongs to a group or if user is invalid
+    """
+    try:
+        json_data = await request.json()
+        group_services.add_member_to_group(
+            json_data["sub"],
+            group_id
+        )
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except DuplicateError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+    except KeyError:
+        raise HTTPException(status_code=400, detail="Missing required fields")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: "
+                                                    f"{str(e)}")
+    return {"message": "User added"}
+
+
+@router.delete("/groups/{group_id}/members/{user_id}", status_code=200,
+               tags=["group, user"])
+@require_auth
+async def remove_member_from_group(user_id: str, group_id: str,
+                                   bearer_token=Depends(HTTPBearer())):
+    """
+    Route for removing a user from a group
+
+    :param user_id: the id of the user to remove
+    :param group_id: the id of the group to remove the user from
+    :param bearer_token: the bearer token for authorization
+    :return: the removed user
+    :raises HTTPException: if user not found or authorization is invalid
+    """
+    try:
+        group_services.remove_member_from_group(user_id, group_id)
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: "
+                                                    f"{str(e)}")
+    return {"message": "User removed"}

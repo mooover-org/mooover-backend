@@ -110,6 +110,14 @@ class GroupServices:
         """
         return self.group_repo.get_one(nickname)
 
+    def get_groups(self) -> List[Group]:
+        """
+        Gets all the groups
+
+        :return: the groups
+        """
+        return self.group_repo.get_all()
+
     def add_group(self, user: User, nickname: str, name: str) -> None:
         """
         Adds a group with default values (0 steps, 5000 daily steps goal, 35000
@@ -157,3 +165,40 @@ class GroupServices:
         :raises NotFoundError: if the group cannot be found in the repository
         """
         self.group_repo.delete(nickname)
+
+    def get_members_of_group(self, nickname: str) -> List[User]:
+        """
+        Gets the members of a group
+
+        :param nickname: the nickname of the group
+        :return: the members of the group
+        :raises NotFoundError: if the group cannot be found in the repository
+        """
+        return self.group_repo.get_members_of_group(nickname)
+
+    def add_member_to_group(self, sub: str, nickname: str) -> None:
+        """
+        Adds a member to a group
+
+        :param sub: the sub of the user
+        :param nickname: the nickname of the group
+        :return: None
+        :raises NotFoundError: if the group cannot be found in the repository
+        :raises DuplicateError: if the user is already a member of the group
+        """
+        if nickname in map(lambda group: group.nickname,
+                           self.user_repo.get_groups_of_user(sub)):
+            raise DuplicateError("The user is already a member of the group")
+        self.group_repo.add_member_to_group(sub, nickname)
+
+    def remove_member_from_group(self, sub: str, nickname: str) -> None:
+        """
+        Removes a member from a group
+
+        :param sub: the sub of the member
+        :param nickname: the nickname of the group
+        :return: None
+        :raises NotFoundError: if the group cannot be found in the repository
+        :raises NotFoundError: if the member cannot be found in the repository
+        """
+        self.group_repo.remove_member_from_group(sub, nickname)
