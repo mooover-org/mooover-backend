@@ -13,6 +13,14 @@ class User:
     daily_steps_goal: int
     app_theme: str
 
+    @property
+    def id(self) -> str:
+        return self.sub
+
+    @id.setter
+    def id(self, value):
+        self.sub = value
+
     def __init__(self, sub: str, name: str, given_name: str, family_name: str,
                  nickname: str, email: str, picture: str, steps: int = 0,
                  daily_steps_goal: int = 5000, app_theme: str = "light"):
@@ -50,7 +58,10 @@ class User:
         :return: None
         :raises ValueError: if invalid user data
         """
-        if not self.sub or not self.name or not self.given_name or not self.family_name or not self.nickname or not self.email or not self.picture or self.steps < 0 or self.daily_steps_goal < 0 or not self.app_theme:
+        if not self.sub or not self.name or not self.given_name or not \
+                self.family_name or not self.nickname or not self.email or \
+                not self.picture or self.steps < 0 or self.daily_steps_goal \
+                < 0 or not self.app_theme:
             raise ValueError("Invalid user data")
 
     @staticmethod
@@ -110,6 +121,14 @@ class Group:
     daily_steps_goal: int
     weekly_steps_goal: int
 
+    @property
+    def id(self) -> str:
+        return self.nickname
+
+    @id.setter
+    def id(self, value):
+        self.nickname = value
+
     def __init__(self, nickname: str, name: str, steps: int = 0,
                  daily_steps_goal: int = 5000, weekly_steps_goal: int = 35000):
         """
@@ -137,7 +156,8 @@ class Group:
         :return: None
         :raises ValueError: if invalid group data
         """
-        if not self.nickname or not self.name or self.steps < 0 or self.daily_steps_goal < 0 or self.weekly_steps_goal < 0:
+        if not self.nickname or not self.name or self.steps < 0 or \
+                self.daily_steps_goal < 0 or self.weekly_steps_goal < 0:
             raise ValueError("Invalid group data")
 
     @staticmethod

@@ -4,7 +4,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer
 
-from app.domain.errors import NotFoundError, DuplicateError
+from app.domain.errors import NotFoundError, DuplicateError, NoContentError
 from app.repositories import Neo4jUserRepository, Neo4jGroupRepository
 from app.services import UserServices, GroupServices
 from app.utils.config import AppConfig
@@ -159,7 +159,7 @@ async def update_user(user_id: str, request: Request,
     try:
         json_data = await request.json()
         user_services.update_user(
-            user_id,
+            json_data["sub"],
             json_data["name"],
             json_data["given_name"],
             json_data["family_name"],
@@ -197,6 +197,8 @@ async def get_group_of_user(user_id: str, bearer_token=Depends(HTTPBearer())):
         group = user_services.get_group_of_user(user_id)
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except NoContentError as e:
+        raise HTTPException(status_code=204, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: "
                                                     f"{str(e)}")
@@ -226,16 +228,17 @@ async def get_group(group_id: str, bearer_token=Depends(HTTPBearer())):
 
 @router.get("/groups", status_code=200, tags=["group"])
 @require_auth
-async def get_groups(bearer_token=Depends(HTTPBearer())):
+async def get_groups(nickname: str = "", bearer_token=Depends(HTTPBearer())):
     """
-    Route for getting all groups
+    Route for getting multiple groups
 
+    :param nickname: the nickname of the group to filter by
     :param bearer_token: the bearer token for authorization
     :return: the corresponding groups
     :raises HTTPException: if authorization is invalid
     """
     try:
-        groups = group_services.get_groups()
+        groups = group_services.get_groups(nickname)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: "
                                                     f"{str(e)}")
@@ -257,7 +260,7 @@ async def add_group(request: Request, bearer_token=Depends(HTTPBearer())):
     try:
         json_data = await request.json()
         group_services.add_group(
-            user_services.get_user(json_data["sub"]),
+            user_services.get_user(json_data["user_id"]),
             json_data["nickname"],
             json_data["name"],
         )
@@ -351,8 +354,8 @@ async def get_members_of_group(group_id: str,
     return [member.as_dict() for member in members]
 
 
-@router.post("/groups/{group_id}/members", status_code=200, tags=["group, "
-                                                                  "user"])
+@router.put("/groups/{group_id}/members", status_code=200, tags=["group, "
+                                                                 "user"])
 @require_auth
 async def add_member_to_group(group_id: str, request: Request,
                               bearer_token=Depends(HTTPBearer())):
@@ -369,7 +372,7 @@ async def add_member_to_group(group_id: str, request: Request,
     try:
         json_data = await request.json()
         group_services.add_member_to_group(
-            json_data["sub"],
+            json_data["user_id"],
             group_id
         )
     except NotFoundError as e:
