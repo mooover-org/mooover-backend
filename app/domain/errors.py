@@ -17,3 +17,10 @@ class DuplicateError(AppError):
 
     def __init__(self, message="entity already exists") -> None:
         super().__init__(message)
+
+
+class NoContentError(AppError):
+    """Error thrown when an entity or resource is empty"""
+
+    def __init__(self, message="entity is empty") -> None:
+        super().__init__(message)
