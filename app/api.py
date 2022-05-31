@@ -6,7 +6,7 @@ from fastapi.security import HTTPBearer
 
 from app.domain.errors import NotFoundError, DuplicateError, NoContentError
 from app.repositories import Neo4jUserRepository, Neo4jGroupRepository
-from app.services import UserServices, GroupServices
+from app.services import UserServices, GroupServices, StepsServices
 from app.utils.config import AppConfig
 from app.utils.validators import JwtValidator
 
@@ -15,6 +15,7 @@ user_repository = Neo4jUserRepository()
 group_repository = Neo4jGroupRepository()
 user_services = UserServices(user_repository)
 group_services = GroupServices(group_repository, user_repository)
+steps_services = StepsServices(user_repository, group_repository)
 
 jwt_validator = JwtValidator(AppConfig().auth0_config)
 
@@ -115,7 +116,7 @@ async def add_user(request: Request, bearer_token=Depends(HTTPBearer())):
 
     :param request: the request object containing the user to be added
     :param bearer_token: the bearer token for authorization
-    :return: the newly added user
+    :return: status message
     :raises HTTPException: if authorization is invalid or user already exists or
     if user is not a valid user
     """
@@ -152,7 +153,7 @@ async def update_user(user_id: str, request: Request,
     :param user_id: the id of the user to be updated
     :param request: the request object containing the user to be updated
     :param bearer_token: the bearer token for authorization
-    :return: the updated user
+    :return: status message
     :raises HTTPException: if user not found or authorization is invalid or if
     user is not a valid user
     """
@@ -255,7 +256,7 @@ async def add_group(request: Request, bearer_token=Depends(HTTPBearer())):
 
     :param request: the request object containing the group to be added
     :param bearer_token: the bearer token for authorization
-    :return: the newly added group
+    :return: status message
     :raises HTTPException: if authorization is invalid or if group already
     exists or if group is invalid or if the user already belongs to a group
     """
@@ -288,7 +289,7 @@ async def update_group(group_id: str, request: Request,
     :param group_id: the id of the group to be updated
     :param request: the request object containing the group to be updated
     :param bearer_token: the bearer token for authorization
-    :return: the updated group
+    :return: status message
     :raises HTTPException: if group not found or authorization is invalid or if
     group is invalid
     """
@@ -322,7 +323,7 @@ async def delete_group(group_id: str, bearer_token=Depends(HTTPBearer())):
 
     :param group_id: the id of the group to be deleted
     :param bearer_token: the bearer token for authorization
-    :return: the deleted group
+    :return: status message
     :raises HTTPException: if group not found or authorization is invalid
     """
     try:
@@ -368,7 +369,7 @@ async def add_member_to_group(group_id: str, request: Request,
     :param group_id: the id of the group to add the user to
     :param request: the request object containing the user to be added
     :param bearer_token: the bearer token for authorization
-    :return: the newly added user
+    :return: status message
     :raises HTTPException: if authorization is invalid or if user already
     belongs to a group or if user is invalid
     """
@@ -403,7 +404,7 @@ async def remove_member_from_group(user_id: str, group_id: str,
     :param user_id: the id of the user to remove
     :param group_id: the id of the group to remove the user from
     :param bearer_token: the bearer token for authorization
-    :return: the removed user
+    :return: status message
     :raises HTTPException: if user not found or authorization is invalid
     """
     try:
@@ -414,3 +415,32 @@ async def remove_member_from_group(user_id: str, group_id: str,
         raise HTTPException(status_code=500, detail=f"Internal server error: "
                                                     f"{str(e)}")
     return {"message": "User removed"}
+
+
+@router.post("/steps/{user_id}", status_code=200, tags=["steps, user, group"])
+@require_auth
+async def add_new_steps(user_id: str, request: Request,
+                        bearer_token=Depends(HTTPBearer())):
+    """
+    Route for adding new steps to a user and possibly a group
+
+    :param user_id: the id of the user to add steps to
+    :param request: the request object containing the steps to be added
+    :param bearer_token: the bearer token for authorization
+    :return: status message
+    :raises HTTPException: if authorization is invalid or if user not found
+    """
+    try:
+        json_data = await request.json()
+        steps = json_data["steps"]
+        steps_services.add_new_steps(user_id, steps)
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except KeyError:
+        raise HTTPException(status_code=400, detail="Missing required fields")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: "
+                                                    f"{str(e)}")
+    return {"message": "Steps added"}

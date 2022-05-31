@@ -223,6 +223,12 @@ class GroupServices:
                            self.user_repo.get_groups_of_user(user_id)):
             raise DuplicateError("The user is already a member of the group")
         self.group_repo.add_member_to_group(user_id, group_id)
+        # update steps
+        user = self.user_repo.get_one(user_id)
+        group = self.group_repo.get_one(group_id)
+        group.today_steps += user.today_steps
+        group.this_week_steps += user.this_week_steps
+        self.group_repo.update(group)
 
     def remove_member_from_group(self, user_id: str, group_id: str) -> None:
         """
@@ -237,3 +243,38 @@ class GroupServices:
         self.group_repo.remove_member_from_group(user_id, group_id)
         if not self.group_repo.get_members_of_group(group_id):
             self.group_repo.delete(group_id)
+        else:
+            # update steps
+            user = self.user_repo.get_one(user_id)
+            group = self.group_repo.get_one(group_id)
+            group.today_steps -= user.today_steps
+            group.this_week_steps -= user.this_week_steps
+            self.group_repo.update(group)
+
+
+class StepsServices:
+    """The services associated with the steps related operations"""
+
+    def __init__(self, user_repo=Neo4jUserRepository(),
+                 group_repo=Neo4jGroupRepository()) -> None:
+        self.user_repo = user_repo
+        self.group_repo = group_repo
+
+    def add_new_steps(self, user_id: str, steps: int) -> None:
+        """
+        Adds new steps to the user
+
+        :param user_id: the id of the user
+        :param steps: the steps to add
+        :return: None
+        :raises NotFoundError: if the user cannot be found in the repository
+        """
+        user = self.user_repo.get_one(user_id)
+        user.today_steps += steps
+        user.this_week_steps += steps
+        self.user_repo.update(user)
+        groups = self.user_repo.get_groups_of_user(user_id)
+        for group in groups:
+            group.today_steps += steps
+            group.this_week_steps += steps
+            self.group_repo.update(group)
