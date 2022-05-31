@@ -9,8 +9,10 @@ class User:
     nickname: str
     email: str
     picture: str
-    steps: int
+    today_steps: int
     daily_steps_goal: int
+    this_week_steps: int
+    weekly_steps_goal: int
     app_theme: str
 
     @property
@@ -22,8 +24,9 @@ class User:
         self.sub = value
 
     def __init__(self, sub: str, name: str, given_name: str, family_name: str,
-                 nickname: str, email: str, picture: str, steps: int = 0,
-                 daily_steps_goal: int = 5000, app_theme: str = "light"):
+                 nickname: str, email: str, picture: str, today_steps: int = 0,
+                 daily_steps_goal: int = 5000, this_week_steps: int = 0,
+                 weekly_steps_goal: int = 35000, app_theme: str = "light"):
         """
         Constructor
 
@@ -34,9 +37,13 @@ class User:
         :param nickname: The nickname of the user
         :param email: The email of the user
         :param picture: The picture of the user
-        :param steps: The steps of the user (default: 0)
+        :param today_steps: The steps of the user for today (default: 0)
         :param daily_steps_goal: The daily steps goal of the user (default:
         5000)
+        :param this_week_steps: The steps of the user for this week (default:
+        0)
+        :param weekly_steps_goal: The weekly steps goal of the user (default:
+        35000)
         :param app_theme: The app theme of the user (default: "light")
         """
         self.sub = sub
@@ -46,8 +53,10 @@ class User:
         self.nickname = nickname
         self.email = email
         self.picture = picture
-        self.steps = steps
+        self.today_steps = today_steps
         self.daily_steps_goal = daily_steps_goal
+        self.this_week_steps = this_week_steps
+        self.weekly_steps_goal = weekly_steps_goal
         self.app_theme = app_theme
         self.validate()
 
@@ -60,8 +69,9 @@ class User:
         """
         if not self.sub or not self.name or not self.given_name or not \
                 self.family_name or not self.nickname or not self.email or \
-                not self.picture or self.steps < 0 or self.daily_steps_goal \
-                < 0 or not self.app_theme:
+                not self.picture or self.today_steps < 0 or \
+                self.daily_steps_goal < 0 or self.this_week_steps < 0 or \
+                self.weekly_steps_goal < 0 or not self.app_theme:
             raise ValueError("Invalid user data")
 
     @staticmethod
@@ -76,8 +86,10 @@ class User:
                     given_name=data["given_name"],
                     family_name=data["family_name"], nickname=data["nickname"],
                     email=data["email"], picture=data["picture"],
-                    steps=data.get("steps") or 0,
+                    today_steps=data.get("today_steps") or 0,
                     daily_steps_goal=data.get("daily_steps_goal") or 5000,
+                    this_week_steps=data.get("this_week_steps") or 0,
+                    weekly_steps_goal=data.get("weekly_steps_goal") or 35000,
                     app_theme=data.get("app_theme") or "light", )
 
     def as_dict(self) -> dict:
@@ -89,8 +101,10 @@ class User:
         return {"sub": self.sub, "name": self.name,
                 "given_name": self.given_name, "family_name": self.family_name,
                 "nickname": self.nickname, "email": self.email,
-                "picture": self.picture, "steps": self.steps,
+                "picture": self.picture, "today_steps": self.today_steps,
                 "daily_steps_goal": self.daily_steps_goal,
+                "this_week_steps": self.this_week_steps,
+                "weekly_steps_goal": self.weekly_steps_goal,
                 "app_theme": self.app_theme, }
 
     def as_str_dict(self) -> str:
@@ -106,19 +120,22 @@ class User:
                f"nickname: '{self.nickname}', " \
                f"email: '{self.email}', " \
                f"picture: '{self.picture}', " \
-               f"steps: {self.steps}, " \
+               f"today_steps: {self.today_steps}, " \
                f"daily_steps_goal: {self.daily_steps_goal}, " \
+               f"this_week_steps: {self.this_week_steps}, " \
+               f"weekly_steps_goal: {self.weekly_steps_goal}, " \
                f"app_theme: '{self.app_theme}'}}"
 
 
 class Group:
     """The base group model"""
-    __primarykey__ = 'nickname'
+    __primarykey__ = "nickname"
 
     nickname: str
     name: str
-    steps: int
+    today_steps: int
     daily_steps_goal: int
+    this_week_steps: int
     weekly_steps_goal: int
 
     @property
@@ -129,23 +146,27 @@ class Group:
     def id(self, value):
         self.nickname = value
 
-    def __init__(self, nickname: str, name: str, steps: int = 0,
-                 daily_steps_goal: int = 5000, weekly_steps_goal: int = 35000):
+    def __init__(self, nickname: str, name: str, today_steps: int = 0,
+                 daily_steps_goal: int = 5000, this_week_steps: int = 0,
+                 weekly_steps_goal: int = 35000):
         """
         Constructor
 
         :param nickname: The nickname of the group
         :param name: The name of the group
-        :param steps: The steps of the group (default: 0)
+        :param today_steps: The steps of the group for today (default: 0)
         :param daily_steps_goal: The daily steps goal of the group (default:
         5000)
+        :param this_week_steps: The steps of the group for this week (default:
+        0)
         :param weekly_steps_goal: The weekly steps goal of the group (default:
         35000)
         """
         self.nickname = nickname
         self.name = name
-        self.steps = steps
+        self.today_steps = today_steps
         self.daily_steps_goal = daily_steps_goal
+        self.this_week_steps = this_week_steps
         self.weekly_steps_goal = weekly_steps_goal
         self.validate()
 
@@ -156,8 +177,9 @@ class Group:
         :return: None
         :raises ValueError: if invalid group data
         """
-        if not self.nickname or not self.name or self.steps < 0 or \
-                self.daily_steps_goal < 0 or self.weekly_steps_goal < 0:
+        if not self.nickname or not self.name or self.today_steps < 0 or \
+                self.daily_steps_goal < 0 or self.this_week_steps < 0 or \
+                self.weekly_steps_goal < 0:
             raise ValueError("Invalid group data")
 
     @staticmethod
@@ -169,8 +191,9 @@ class Group:
         :return: The group
         """
         return Group(nickname=data["nickname"], name=data["name"],
-                     steps=data.get("steps") or 0,
+                     today_steps=data.get("today_steps") or 0,
                      daily_steps_goal=data.get("daily_steps_goal") or 5000,
+                     this_week_steps=data.get("this_week_steps") or 0,
                      weekly_steps_goal=data.get("weekly_steps_goal") or 35000, )
 
     def as_dict(self) -> dict:
@@ -180,7 +203,9 @@ class Group:
         :return: The dict representation of the group
         """
         return {"nickname": self.nickname, "name": self.name,
-                "steps": self.steps, "daily_steps_goal": self.daily_steps_goal,
+                "today_steps": self.today_steps,
+                "daily_steps_goal": self.daily_steps_goal,
+                "this_week_steps": self.this_week_steps,
                 "weekly_steps_goal": self.weekly_steps_goal, }
 
     def as_str_dict(self) -> str:
@@ -191,6 +216,7 @@ class Group:
         """
         return f"{{nickname: '{self.nickname}', " \
                f"name: '{self.name}', " \
-               f"steps: {self.steps}, " \
+               f"today_steps: {self.today_steps}, " \
                f"daily_steps_goal: {self.daily_steps_goal}, " \
+               f"this_week_steps: {self.this_week_steps}, " \
                f"weekly_steps_goal: {self.weekly_steps_goal}}}"

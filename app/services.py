@@ -53,7 +53,9 @@ class UserServices:
 
     def update_user(self, sub: str, name: str, given_name: str,
                     family_name: str, nickname: str, email: str, picture: str,
-                    steps: int, daily_steps_goal: int, app_theme: str) -> None:
+                    today_steps: int, daily_steps_goal: int,
+                    this_week_steps: int, weekly_steps_goal: int,
+                    app_theme: str) -> None:
         """
         Updates a user
 
@@ -64,8 +66,10 @@ class UserServices:
         :param nickname: the nickname of the user
         :param email: the email of the user
         :param picture: the picture of the user
-        :param steps: the steps of the user
+        :param today_steps: the steps of the user for today
         :param daily_steps_goal: the daily steps goal of the user
+        :param this_week_steps: the steps of the user for this week
+        :param weekly_steps_goal: the weekly steps goal of the user
         :param app_theme: the app theme of the user
         :return: None
         :raises NotFoundError: if the user cannot be found in the repository
@@ -73,8 +77,11 @@ class UserServices:
         """
         user = User(sub=sub, name=name, given_name=given_name,
                     family_name=family_name, nickname=nickname, email=email,
-                    picture=picture, steps=steps,
-                    daily_steps_goal=daily_steps_goal, app_theme=app_theme)
+                    picture=picture, today_steps=today_steps,
+                    daily_steps_goal=daily_steps_goal,
+                    this_week_steps=this_week_steps,
+                    weekly_steps_goal=weekly_steps_goal,
+                    app_theme=app_theme)
         self.repo.update(user)
 
     def get_group_of_user(self, user_id: str) -> Group:
@@ -160,22 +167,25 @@ class GroupServices:
         self.group_repo.add(group)
         self.group_repo.add_member_to_group(user.id, group.id)
 
-    def update_group(self, nickname: str, name: str, steps: int,
-                     daily_steps_goal: int, weekly_steps_goal: int) -> None:
+    def update_group(self, nickname: str, name: str, today_steps: int,
+                     daily_steps_goal: int, this_week_steps: int,
+                     weekly_steps_goal: int) -> None:
         """
         Updates a group
 
         :param nickname: the nickname of the group
         :param name: the name of the group
-        :param steps: the steps of the group
+        :param today_steps: the steps of the group for today
         :param daily_steps_goal: the daily steps goal of the group
+        :param this_week_steps: the steps of the group for this week
         :param weekly_steps_goal: the weekly steps goal of the group
         :return: None
         :raises NotFoundError: if the group cannot be found in the repository
         :raises ValueError: if the group data is not valid
         """
-        group = Group(nickname=nickname, name=name, steps=steps,
+        group = Group(nickname=nickname, name=name, today_steps=today_steps,
                       daily_steps_goal=daily_steps_goal,
+                      this_week_steps=this_week_steps,
                       weekly_steps_goal=weekly_steps_goal)
         self.group_repo.update(group)
 

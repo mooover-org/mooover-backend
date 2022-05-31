@@ -81,8 +81,8 @@ async def get_user(user_id: str, bearer_token=Depends(HTTPBearer())):
     """
     try:
         user = user_services.get_user(user_id)
-    except NotFoundError:
-        raise HTTPException(status_code=404, detail="User not found")
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: "
                                                     f"{str(e)}")
@@ -130,12 +130,12 @@ async def add_user(request: Request, bearer_token=Depends(HTTPBearer())):
             json_data["email"],
             json_data["picture"],
         )
-    except DuplicateError:
-        raise HTTPException(status_code=409, detail="User already exists")
+    except DuplicateError as e:
+        raise HTTPException(status_code=409, detail=str(e))
     except KeyError:
         raise HTTPException(status_code=400, detail="Missing required fields")
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid fields")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: "
                                                     f"{str(e)}")
@@ -166,16 +166,18 @@ async def update_user(user_id: str, request: Request,
             json_data["nickname"],
             json_data["email"],
             json_data["picture"],
-            json_data["steps"],
+            json_data["today_steps"],
             json_data["daily_steps_goal"],
+            json_data["this_week_steps"],
+            json_data["weekly_steps_goal"],
             json_data["app_theme"],
         )
-    except NotFoundError:
-        raise HTTPException(status_code=404, detail="User not found")
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except KeyError:
         raise HTTPException(status_code=400, detail="Missing required fields")
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid fields")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: "
                                                     f"{str(e)}")
@@ -295,8 +297,9 @@ async def update_group(group_id: str, request: Request,
         group_services.update_group(
             json_data["nickname"],
             json_data["name"],
-            json_data["steps"],
+            json_data["today_steps"],
             json_data["daily_steps_goal"],
+            json_data["this_week_steps"],
             json_data["weekly_steps_goal"]
         )
     except NotFoundError as e:
