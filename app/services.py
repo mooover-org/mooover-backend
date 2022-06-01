@@ -1,4 +1,8 @@
+from datetime import datetime, timedelta
+from threading import Thread
 from typing import List
+
+import pause
 
 from app.domain.errors import DuplicateError, NoContentError
 from app.domain.models import User, Group
@@ -278,3 +282,58 @@ class StepsServices:
             group.today_steps += steps
             group.this_week_steps += steps
             self.group_repo.update(group)
+
+    def run_background_tasks(self):
+        """
+        Runs the background tasks for the steps related operations
+
+        :return: None
+        """
+
+        def _reset_today_steps():
+            """
+            Resets the today steps of all users and groups
+
+            :return: None
+            """
+            while True:
+                pause.until(datetime.now().replace(hour=0, minute=0, second=0,
+                                                   microsecond=0) + timedelta(
+                    days=1))
+                users = self.user_repo.get_all()
+                for user in users:
+                    user.today_steps = 0
+                    self.user_repo.update(user)
+                groups = self.group_repo.get_all()
+                for group in groups:
+                    group.today_steps = 0
+                    self.group_repo.update(group)
+                    self.group_repo.update(group)
+                print("Today steps reset")
+
+        def _reset_this_week_steps():
+            """
+            Resets this week's steps of all users and groups
+
+            :return: None
+            """
+            while True:
+                next_week_number = datetime.now().isocalendar()[1] + 1
+                pause.until(datetime.now().replace(month=1, day=1, hour=0,
+                                                   minute=0, second=0,
+                                                   microsecond=0) +
+                            timedelta(weeks=+next_week_number))
+                users = self.user_repo.get_all()
+                for user in users:
+                    user.this_week_steps = 0
+                    self.user_repo.update(user)
+                groups = self.group_repo.get_all()
+                for group in groups:
+                    group.this_week_steps = 0
+                    self.group_repo.update(group)
+                print("This week's steps reset")
+
+        thread1 = Thread(target=_reset_today_steps)
+        thread2 = Thread(target=_reset_this_week_steps)
+        thread1.start()
+        thread2.start()

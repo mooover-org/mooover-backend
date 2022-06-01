@@ -16,6 +16,7 @@ group_repository = Neo4jGroupRepository()
 user_services = UserServices(user_repository)
 group_services = GroupServices(group_repository, user_repository)
 steps_services = StepsServices(user_repository, group_repository)
+steps_services.run_background_tasks()
 
 jwt_validator = JwtValidator(AppConfig().auth0_config)
 
