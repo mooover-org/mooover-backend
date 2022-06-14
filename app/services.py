@@ -1,4 +1,8 @@
+from datetime import datetime, timedelta
+from threading import Thread
 from typing import List
+
+import pause
 
 from app.domain.errors import DuplicateError, NoContentError
 from app.domain.models import User, Group
@@ -53,7 +57,9 @@ class UserServices:
 
     def update_user(self, sub: str, name: str, given_name: str,
                     family_name: str, nickname: str, email: str, picture: str,
-                    steps: int, daily_steps_goal: int, app_theme: str) -> None:
+                    today_steps: int, daily_steps_goal: int,
+                    this_week_steps: int, weekly_steps_goal: int,
+                    app_theme: str) -> None:
         """
         Updates a user
 
@@ -64,8 +70,10 @@ class UserServices:
         :param nickname: the nickname of the user
         :param email: the email of the user
         :param picture: the picture of the user
-        :param steps: the steps of the user
+        :param today_steps: the steps of the user for today
         :param daily_steps_goal: the daily steps goal of the user
+        :param this_week_steps: the steps of the user for this week
+        :param weekly_steps_goal: the weekly steps goal of the user
         :param app_theme: the app theme of the user
         :return: None
         :raises NotFoundError: if the user cannot be found in the repository
@@ -73,8 +81,11 @@ class UserServices:
         """
         user = User(sub=sub, name=name, given_name=given_name,
                     family_name=family_name, nickname=nickname, email=email,
-                    picture=picture, steps=steps,
-                    daily_steps_goal=daily_steps_goal, app_theme=app_theme)
+                    picture=picture, today_steps=today_steps,
+                    daily_steps_goal=daily_steps_goal,
+                    this_week_steps=this_week_steps,
+                    weekly_steps_goal=weekly_steps_goal,
+                    app_theme=app_theme)
         self.repo.update(user)
 
     def get_group_of_user(self, user_id: str) -> Group:
@@ -160,22 +171,25 @@ class GroupServices:
         self.group_repo.add(group)
         self.group_repo.add_member_to_group(user.id, group.id)
 
-    def update_group(self, nickname: str, name: str, steps: int,
-                     daily_steps_goal: int, weekly_steps_goal: int) -> None:
+    def update_group(self, nickname: str, name: str, today_steps: int,
+                     daily_steps_goal: int, this_week_steps: int,
+                     weekly_steps_goal: int) -> None:
         """
         Updates a group
 
         :param nickname: the nickname of the group
         :param name: the name of the group
-        :param steps: the steps of the group
+        :param today_steps: the steps of the group for today
         :param daily_steps_goal: the daily steps goal of the group
+        :param this_week_steps: the steps of the group for this week
         :param weekly_steps_goal: the weekly steps goal of the group
         :return: None
         :raises NotFoundError: if the group cannot be found in the repository
         :raises ValueError: if the group data is not valid
         """
-        group = Group(nickname=nickname, name=name, steps=steps,
+        group = Group(nickname=nickname, name=name, today_steps=today_steps,
                       daily_steps_goal=daily_steps_goal,
+                      this_week_steps=this_week_steps,
                       weekly_steps_goal=weekly_steps_goal)
         self.group_repo.update(group)
 
@@ -213,6 +227,12 @@ class GroupServices:
                            self.user_repo.get_groups_of_user(user_id)):
             raise DuplicateError("The user is already a member of the group")
         self.group_repo.add_member_to_group(user_id, group_id)
+        # update steps
+        user = self.user_repo.get_one(user_id)
+        group = self.group_repo.get_one(group_id)
+        group.today_steps += user.today_steps
+        group.this_week_steps += user.this_week_steps
+        self.group_repo.update(group)
 
     def remove_member_from_group(self, user_id: str, group_id: str) -> None:
         """
@@ -227,3 +247,93 @@ class GroupServices:
         self.group_repo.remove_member_from_group(user_id, group_id)
         if not self.group_repo.get_members_of_group(group_id):
             self.group_repo.delete(group_id)
+        else:
+            # update steps
+            user = self.user_repo.get_one(user_id)
+            group = self.group_repo.get_one(group_id)
+            group.today_steps -= user.today_steps
+            group.this_week_steps -= user.this_week_steps
+            self.group_repo.update(group)
+
+
+class StepsServices:
+    """The services associated with the steps related operations"""
+
+    def __init__(self, user_repo=Neo4jUserRepository(),
+                 group_repo=Neo4jGroupRepository()) -> None:
+        self.user_repo = user_repo
+        self.group_repo = group_repo
+
+    def add_new_steps(self, user_id: str, steps: int) -> None:
+        """
+        Adds new steps to the user
+
+        :param user_id: the id of the user
+        :param steps: the steps to add
+        :return: None
+        :raises NotFoundError: if the user cannot be found in the repository
+        """
+        user = self.user_repo.get_one(user_id)
+        user.today_steps += steps
+        user.this_week_steps += steps
+        self.user_repo.update(user)
+        groups = self.user_repo.get_groups_of_user(user_id)
+        for group in groups:
+            group.today_steps += steps
+            group.this_week_steps += steps
+            self.group_repo.update(group)
+
+    def run_background_tasks(self):
+        """
+        Runs the background tasks for the steps related operations
+
+        :return: None
+        """
+
+        def _reset_today_steps():
+            """
+            Resets the today steps of all users and groups
+
+            :return: None
+            """
+            while True:
+                pause.until(datetime.now().replace(hour=0, minute=0, second=0,
+                                                   microsecond=0) + timedelta(
+                    days=1))
+                users = self.user_repo.get_all()
+                for user in users:
+                    user.today_steps = 0
+                    self.user_repo.update(user)
+                groups = self.group_repo.get_all()
+                for group in groups:
+                    group.today_steps = 0
+                    self.group_repo.update(group)
+                    self.group_repo.update(group)
+                print("Today steps reset")
+
+        def _reset_this_week_steps():
+            """
+            Resets this week's steps of all users and groups
+
+            :return: None
+            """
+            while True:
+                next_week_number = datetime.now().isocalendar()[1] + 1
+                pause.until(datetime.now().replace(month=1, day=1, hour=0,
+                                                   minute=0, second=0,
+                                                   microsecond=0) +
+                            timedelta(weeks=+next_week_number))
+                users = self.user_repo.get_all()
+                for user in users:
+                    user.this_week_steps = 0
+                    self.user_repo.update(user)
+                groups = self.group_repo.get_all()
+                for group in groups:
+                    group.this_week_steps = 0
+                    self.group_repo.update(group)
+                print("This week's steps reset")
+
+        thread1 = Thread(target=_reset_today_steps)
+        thread2 = Thread(target=_reset_this_week_steps)
+        thread1.start()
+        thread2.start()
