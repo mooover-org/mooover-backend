@@ -9,6 +9,7 @@ from app.utils.config import AppConfig
 
 class Repository:
     """Abstract class for all repositories"""
+
     entities: dict = {}
 
     def __init__(self, entities=None) -> None:

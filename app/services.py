@@ -13,7 +13,7 @@ class UserServices:
     """The services associated with the user related operations"""
 
     def __init__(self, repo=Neo4jUserRepository()) -> None:
-        self.repo = repo
+        self.user_repo = repo
 
     def get_user(self, user_id: str) -> User:
         """
@@ -23,7 +23,7 @@ class UserServices:
         :return: the user
         :raises NotFoundError: if the user cannot be found in the repository
         """
-        return self.repo.get_one(user_id)
+        return self.user_repo.get_one(user_id)
 
     def get_users(self) -> List[User]:
         """
@@ -31,7 +31,7 @@ class UserServices:
 
         :return: the users
         """
-        return self.repo.get_all()
+        return self.user_repo.get_all()
 
     def add_user(self, sub: str, name: str, given_name: str, family_name: str,
                  nickname: str, email: str, picture: str) -> None:
@@ -53,7 +53,7 @@ class UserServices:
         user = User(sub=sub, name=name, given_name=given_name,
                     family_name=family_name, nickname=nickname, email=email,
                     picture=picture, )
-        self.repo.add(user)
+        self.user_repo.add(user)
 
     def update_user(self, sub: str, name: str, given_name: str,
                     family_name: str, nickname: str, email: str, picture: str,
@@ -86,7 +86,7 @@ class UserServices:
                     this_week_steps=this_week_steps,
                     weekly_steps_goal=weekly_steps_goal,
                     app_theme=app_theme)
-        self.repo.update(user)
+        self.user_repo.update(user)
 
     def get_group_of_user(self, user_id: str) -> Group:
         """
@@ -97,8 +97,8 @@ class UserServices:
         :raises NotFoundError: if the user cannot be found in the repository
         :raises NoContentError: if the user has no group
         """
-        user = self.repo.get_one(user_id)
-        groups = self.repo.get_groups_of_user(user.id)
+        user = self.user_repo.get_one(user_id)
+        groups = self.user_repo.get_groups_of_user(user.id)
         if len(groups) == 0:
             raise NoContentError("The user has no group")
         return groups[0]
@@ -318,11 +318,10 @@ class StepsServices:
             :return: None
             """
             while True:
-                next_week_number = datetime.now().isocalendar()[1] + 1
-                pause.until(datetime.now().replace(month=1, day=1, hour=0,
-                                                   minute=0, second=0,
-                                                   microsecond=0) +
-                            timedelta(weeks=+next_week_number))
+                pause.until(datetime.now().replace(hour=0, minute=0,
+                                                   second=0,
+                                                   microsecond=0) + timedelta(
+                    days=(7 - datetime.now().weekday())))
                 users = self.user_repo.get_all()
                 for user in users:
                     user.this_week_steps = 0
