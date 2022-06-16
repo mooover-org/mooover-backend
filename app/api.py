@@ -3,6 +3,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer
+from starlette.responses import Response, JSONResponse
 
 from app.domain.errors import NotFoundError, DuplicateError, NoContentError
 from app.repositories import Neo4jUserRepository, Neo4jGroupRepository
@@ -186,7 +187,8 @@ async def update_user(user_id: str, request: Request,
     return {"message": "User updated"}
 
 
-@router.get("/users/{user_id}/group", status_code=200, tags=["user", "group"])
+@router.get("/users/{user_id}/group", status_code=204,
+            tags=["user", "group"], response_class=Response)
 @require_auth
 async def get_group_of_user(user_id: str, bearer_token=Depends(HTTPBearer())):
     """
@@ -202,11 +204,11 @@ async def get_group_of_user(user_id: str, bearer_token=Depends(HTTPBearer())):
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except NoContentError as e:
-        raise HTTPException(status_code=204, detail=str(e))
+        return None
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: "
                                                     f"{str(e)}")
-    return group.as_dict()
+    return JSONResponse(content=group.as_dict(), status_code=200)
 
 
 @router.get("/groups/{group_id}", status_code=200, tags=["group"])

@@ -169,7 +169,7 @@ class GroupServices:
             raise DuplicateError("The user already has a group")
         group = Group(nickname=nickname, name=name)
         self.group_repo.add(group)
-        self.group_repo.add_member_to_group(user.id, group.id)
+        self.add_member_to_group(user.id, nickname)
 
     def update_group(self, nickname: str, name: str, today_steps: int,
                      daily_steps_goal: int, this_week_steps: int,
