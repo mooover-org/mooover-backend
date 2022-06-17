@@ -37,8 +37,8 @@ def require_auth(func) -> Any:
 
     def validate_bearer_token(bearer_token) -> None:
         if not bearer_token:
-            raise HTTPException(
-                status_code=401, detail="User not authenticated")
+            raise HTTPException(status_code=401,
+                                detail="User not authenticated")
         if bearer_token.scheme != "Bearer":
             raise HTTPException(status_code=401,
                                 detail="Authorization header must be "
@@ -124,15 +124,11 @@ async def add_user(request: Request, bearer_token=Depends(HTTPBearer())):
     """
     try:
         json_data = await request.json()
-        user_services.add_user(
-            json_data["sub"],
-            json_data["name"],
-            json_data["given_name"],
-            json_data["family_name"],
-            json_data["nickname"],
-            json_data["email"],
-            json_data["picture"],
-        )
+        user_services.add_user(json_data["sub"], json_data["name"],
+                               json_data["given_name"],
+                               json_data["family_name"],
+                               json_data["nickname"], json_data["email"],
+                               json_data["picture"], )
     except DuplicateError as e:
         raise HTTPException(status_code=409, detail=str(e))
     except KeyError:
@@ -161,20 +157,16 @@ async def update_user(user_id: str, request: Request,
     """
     try:
         json_data = await request.json()
-        user_services.update_user(
-            json_data["sub"],
-            json_data["name"],
-            json_data["given_name"],
-            json_data["family_name"],
-            json_data["nickname"],
-            json_data["email"],
-            json_data["picture"],
-            json_data["today_steps"],
-            json_data["daily_steps_goal"],
-            json_data["this_week_steps"],
-            json_data["weekly_steps_goal"],
-            json_data["app_theme"],
-        )
+        user_services.update_user(json_data["sub"], json_data["name"],
+                                  json_data["given_name"],
+                                  json_data["family_name"],
+                                  json_data["nickname"], json_data["email"],
+                                  json_data["picture"],
+                                  json_data["today_steps"],
+                                  json_data["daily_steps_goal"],
+                                  json_data["this_week_steps"],
+                                  json_data["weekly_steps_goal"],
+                                  json_data["app_theme"], )
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except KeyError:
@@ -187,8 +179,8 @@ async def update_user(user_id: str, request: Request,
     return {"message": "User updated"}
 
 
-@router.get("/users/{user_id}/group", status_code=204,
-            tags=["user", "group"], response_class=Response)
+@router.get("/users/{user_id}/group", status_code=204, tags=["user", "group"],
+            response_class=Response)
 @require_auth
 async def get_group_of_user(user_id: str, bearer_token=Depends(HTTPBearer())):
     """
@@ -234,17 +226,23 @@ async def get_group(group_id: str, bearer_token=Depends(HTTPBearer())):
 
 @router.get("/groups", status_code=200, tags=["group"])
 @require_auth
-async def get_groups(nickname: str = "", bearer_token=Depends(HTTPBearer())):
+async def get_groups(nickname: str = "", ordered_by_steps: str = "false",
+                     bearer_token=Depends(HTTPBearer())):
     """
     Route for getting multiple groups
 
     :param nickname: the nickname of the group to filter by
+    :param ordered_by_steps: whether to order by steps or not
     :param bearer_token: the bearer token for authorization
     :return: the corresponding groups
     :raises HTTPException: if authorization is invalid
     """
     try:
-        groups = group_services.get_groups(nickname)
+        groups = group_services.get_groups(
+            nickname=nickname,
+            name_also=True,
+            ordered_by_steps=True if ordered_by_steps == "true" else False,
+            loose=True)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: "
                                                     f"{str(e)}")
@@ -265,11 +263,8 @@ async def add_group(request: Request, bearer_token=Depends(HTTPBearer())):
     """
     try:
         json_data = await request.json()
-        group_services.add_group(
-            user_services.get_user(json_data["user_id"]),
-            json_data["nickname"],
-            json_data["name"],
-        )
+        group_services.add_group(user_services.get_user(json_data["user_id"]),
+                                 json_data["nickname"], json_data["name"], )
     except DuplicateError as e:
         raise HTTPException(status_code=409, detail=str(e))
     except KeyError:
@@ -298,14 +293,11 @@ async def update_group(group_id: str, request: Request,
     """
     try:
         json_data = await request.json()
-        group_services.update_group(
-            json_data["nickname"],
-            json_data["name"],
-            json_data["today_steps"],
-            json_data["daily_steps_goal"],
-            json_data["this_week_steps"],
-            json_data["weekly_steps_goal"]
-        )
+        group_services.update_group(json_data["nickname"], json_data["name"],
+                                    json_data["today_steps"],
+                                    json_data["daily_steps_goal"],
+                                    json_data["this_week_steps"],
+                                    json_data["weekly_steps_goal"])
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except KeyError:
@@ -341,18 +333,21 @@ async def delete_group(group_id: str, bearer_token=Depends(HTTPBearer())):
 
 @router.get("/groups/{group_id}/members", status_code=200, tags=["group, user"])
 @require_auth
-async def get_members_of_group(group_id: str,
+async def get_members_of_group(group_id: str, ordered_by_steps: str = "false",
                                bearer_token=Depends(HTTPBearer())):
     """
     Route for getting all members of a group
 
     :param group_id: the id of the group
+    :param ordered_by_steps: whether to order by steps or not
     :param bearer_token: the bearer token for authorization
     :return: the members of the group
     :raises HTTPException: if group not found or authorization is invalid
     """
     try:
-        members = group_services.get_members_of_group(group_id)
+        members = group_services.get_members_of_group(
+            group_id=group_id,
+            order_by_steps=True if ordered_by_steps == "true" else False)
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -378,10 +373,7 @@ async def add_member_to_group(group_id: str, request: Request,
     """
     try:
         json_data = await request.json()
-        group_services.add_member_to_group(
-            json_data["user_id"],
-            group_id
-        )
+        group_services.add_member_to_group(json_data["user_id"], group_id)
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except DuplicateError as e:
