@@ -92,6 +92,27 @@ async def get_user(user_id: str, bearer_token=Depends(HTTPBearer())):
     return user.as_dict()
 
 
+@router.get("/users/{user_id}/steps", status_code=200, tags=["user, steps"])
+@require_auth
+async def get_user_steps(user_id: str, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for getting the steps of a user
+
+    :param user_id: the id of the user
+    :param bearer_token: the bearer token for authorization
+    :return: the steps of the user
+    :raises HTTPException: if user not found or authorization is invalid
+    """
+    try:
+        today_steps, this_week_steps = steps_services.get_user_steps(user_id)
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: "
+                                                    f"{str(e)}")
+    return {"today_steps": today_steps, "this_week_steps": this_week_steps}
+
+
 @router.get("/users", status_code=200, tags=["user"])
 @require_auth
 async def get_users(bearer_token=Depends(HTTPBearer())):
@@ -222,6 +243,27 @@ async def get_group(group_id: str, bearer_token=Depends(HTTPBearer())):
         raise HTTPException(status_code=500, detail=f"Internal server error: "
                                                     f"{str(e)}")
     return group.as_dict()
+
+
+@router.get("/groups/{group_id}/steps", status_code=200, tags=["group", "step"])
+@require_auth
+async def get_group_steps(group_id: str, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for getting a group's steps
+
+    :param group_id: the id of the group
+    :param bearer_token: the bearer token for authorization
+    :return: the corresponding group's steps
+    :raises HTTPException: if group not found or authorization is invalid
+    """
+    try:
+        today_steps, this_week_steps = steps_services.get_group_steps(group_id)
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: "
+                                                    f"{str(e)}")
+    return {"today_steps": today_steps, "this_week_steps": this_week_steps}
 
 
 @router.get("/groups", status_code=200, tags=["group"])

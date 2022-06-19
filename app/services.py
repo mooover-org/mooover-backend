@@ -273,6 +273,28 @@ class StepsServices:
         self.user_repo = user_repo
         self.group_repo = group_repo
 
+    def get_user_steps(self, user_id: str) -> (int, int):
+        """
+        Gets the steps of a user
+
+        :param user_id: the id of the user
+        :return: the steps of the user
+        :raises NotFoundError: if the user cannot be found in the repository
+        """
+        user = self.user_repo.get_one(user_id)
+        return user.today_steps, user.this_week_steps
+
+    def get_group_steps(self, group_id: str) -> (int, int):
+        """
+        Gets the steps of a group
+
+        :param group_id: the id of the group
+        :return: the steps of the group
+        :raises NotFoundError: if the group cannot be found in the repository
+        """
+        group = self.group_repo.get_one(group_id)
+        return group.today_steps, group.this_week_steps
+
     def add_new_steps(self, user_id: str, steps: int) -> None:
         """
         Adds new steps to the user
