@@ -1,3 +1,6 @@
+from emoji.unicode_codes import UNICODE_EMOJI
+
+
 class User:
     """The base user model"""
     __primarykey__ = "sub"
@@ -67,11 +70,18 @@ class User:
         :return: None
         :raises ValueError: if invalid user data
         """
-        if not self.sub or not self.name or not self.given_name or not \
-                self.family_name or not self.nickname or not self.email or \
-                not self.picture or self.today_steps < 0 or \
-                self.daily_steps_goal < 0 or self.this_week_steps < 0 or \
-                self.weekly_steps_goal < 0 or not self.app_theme:
+        if not self.sub or \
+                not self.name or \
+                not self.given_name or \
+                not self.family_name or \
+                not self.nickname or \
+                not self.email or \
+                not self.picture or \
+                self.today_steps < 0 or \
+                self.daily_steps_goal <= 0 or \
+                self.this_week_steps < 0 or \
+                self.weekly_steps_goal <= 0 or \
+                not self.app_theme:
             raise ValueError("Invalid user data")
 
     @staticmethod
@@ -90,7 +100,7 @@ class User:
                     daily_steps_goal=data.get("daily_steps_goal") or 5000,
                     this_week_steps=data.get("this_week_steps") or 0,
                     weekly_steps_goal=data.get("weekly_steps_goal") or 35000,
-                    app_theme=data.get("app_theme") or "light", )
+                    app_theme=data.get("app_theme") or "light")
 
     def as_dict(self) -> dict:
         """
@@ -177,9 +187,14 @@ class Group:
         :return: None
         :raises ValueError: if invalid group data
         """
-        if not self.nickname or not self.name or self.today_steps < 0 or \
-                self.daily_steps_goal < 0 or self.this_week_steps < 0 or \
-                self.weekly_steps_goal < 0:
+        if not self.nickname or \
+                any(char in self.nickname for char in UNICODE_EMOJI) or \
+                not self.name or \
+                any(char in self.name for char in UNICODE_EMOJI) or \
+                self.today_steps < 0 or \
+                self.daily_steps_goal <= 0 or \
+                self.this_week_steps < 0 or \
+                self.weekly_steps_goal <= 0:
             raise ValueError("Invalid group data")
 
     @staticmethod
@@ -194,7 +209,7 @@ class Group:
                      today_steps=data.get("today_steps") or 0,
                      daily_steps_goal=data.get("daily_steps_goal") or 5000,
                      this_week_steps=data.get("this_week_steps") or 0,
-                     weekly_steps_goal=data.get("weekly_steps_goal") or 35000, )
+                     weekly_steps_goal=data.get("weekly_steps_goal") or 35000)
 
     def as_dict(self) -> dict:
         """

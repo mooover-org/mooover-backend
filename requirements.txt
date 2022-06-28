@@ -21,3 +21,4 @@ starlette-graphene3==0.5.1
 neo4j==4.4.3
 pause==0.3.0
 gunicorn==20.1.0
+emoji==1.7.0
