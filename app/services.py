@@ -84,8 +84,7 @@ class UserServices:
                     picture=picture, today_steps=today_steps,
                     daily_steps_goal=daily_steps_goal,
                     this_week_steps=this_week_steps,
-                    weekly_steps_goal=weekly_steps_goal,
-                    app_theme=app_theme)
+                    weekly_steps_goal=weekly_steps_goal, app_theme=app_theme)
         self.user_repo.update(user)
 
     def get_group_of_user(self, user_id: str) -> Group:
@@ -122,33 +121,37 @@ class GroupServices:
         """
         return self.group_repo.get_one(group_id)
 
-    def get_groups(self, nickname_filter: str = "",
-                   name_also: bool = True,
-                   loose: bool = True) -> List[Group]:
+    def get_groups(self, nickname: str = "", name_also: bool = True,
+                   ordered_by_steps: bool = False, loose: bool = True) -> List[
+        Group]:
         """
         Gets multiple groups, with or without a filter applied
 
-        :param nickname_filter: the nickname filter
+        :param nickname: the nickname filter
         :param name_also: if the name also must be checked
+        :param ordered_by_steps: if the groups must be ordered by steps
         :param loose: if the filter should match parts of the nickname
 
         :return: the groups
         """
         groups = self.group_repo.get_all()
-        if nickname_filter and nickname_filter != "":
+        if nickname and nickname != "":
             filtered_groups = []
             for group in groups:
                 if loose:
-                    if nickname_filter in group.nickname:
+                    if nickname in group.nickname:
                         filtered_groups.append(group)
-                    elif name_also and nickname_filter in group.name:
+                    elif name_also and nickname in group.name:
                         filtered_groups.append(group)
                 else:
-                    if nickname_filter == group.nickname:
+                    if nickname == group.nickname:
                         filtered_groups.append(group)
-                    elif name_also and nickname_filter == group.name:
+                    elif name_also and nickname == group.name:
                         filtered_groups.append(group)
-            return filtered_groups
+            groups = filtered_groups
+        if ordered_by_steps:
+            groups = sorted(groups, key=lambda group: group.this_week_steps,
+                            reverse=True)
         return groups
 
     def add_group(self, user: User, nickname: str, name: str) -> None:
@@ -203,15 +206,21 @@ class GroupServices:
         """
         self.group_repo.delete(group_id)
 
-    def get_members_of_group(self, group_id: str) -> List[User]:
+    def get_members_of_group(self, group_id: str,
+                             order_by_steps: bool = False) -> List[User]:
         """
         Gets the members of a group
 
         :param group_id: the id of the group
+        :param order_by_steps: if the members must be ordered by steps
         :return: the members of the group
         :raises NotFoundError: if the group cannot be found in the repository
         """
-        return self.group_repo.get_members_of_group(group_id)
+        members = self.group_repo.get_members_of_group(group_id)
+        if order_by_steps:
+            members = sorted(members, key=lambda member: member.today_steps,
+                             reverse=True)
+        return members
 
     def add_member_to_group(self, user_id: str, group_id: str) -> None:
         """
@@ -263,6 +272,28 @@ class StepsServices:
                  group_repo=Neo4jGroupRepository()) -> None:
         self.user_repo = user_repo
         self.group_repo = group_repo
+
+    def get_user_steps(self, user_id: str) -> (int, int):
+        """
+        Gets the steps of a user
+
+        :param user_id: the id of the user
+        :return: the steps of the user
+        :raises NotFoundError: if the user cannot be found in the repository
+        """
+        user = self.user_repo.get_one(user_id)
+        return user.today_steps, user.this_week_steps
+
+    def get_group_steps(self, group_id: str) -> (int, int):
+        """
+        Gets the steps of a group
+
+        :param group_id: the id of the group
+        :return: the steps of the group
+        :raises NotFoundError: if the group cannot be found in the repository
+        """
+        group = self.group_repo.get_one(group_id)
+        return group.today_steps, group.this_week_steps
 
     def add_new_steps(self, user_id: str, steps: int) -> None:
         """
@@ -318,8 +349,7 @@ class StepsServices:
             :return: None
             """
             while True:
-                pause.until(datetime.now().replace(hour=0, minute=0,
-                                                   second=0,
+                pause.until(datetime.now().replace(hour=0, minute=0, second=0,
                                                    microsecond=0) + timedelta(
                     days=(7 - datetime.now().weekday())))
                 users = self.user_repo.get_all()
