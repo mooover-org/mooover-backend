@@ -18,6 +18,7 @@ class AppConfig:
             try:
                 cls.auth0_config = cls.config["AUTH0"]
                 cls.neo4j_config = cls.config["NEO4J"]
+                cls.neo4j_config["PASSWORD"] = os.environ["DB_PASSWORD"]
             except KeyError as e:
                 raise NotFoundError(f"{e} config not found")
         return cls.__instance
@@ -32,6 +33,6 @@ class AppConfig:
         env = os.getenv("ENV", ".config")
         if env == ".config":
             config = ConfigParser()
-            config.read([".config", ".test.config", "test/.test.config"])
+            config.read([".config", ".test.config"])
             return config
         raise NotFoundError("config file not found")
