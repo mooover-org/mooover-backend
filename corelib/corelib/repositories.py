@@ -1,6 +1,6 @@
 from typing import Any, List
 
-from commons.domain.errors import NotFoundError, DuplicateError
+from corelib.domain.errors import NotFoundError, DuplicateError
 
 
 class Repository:
