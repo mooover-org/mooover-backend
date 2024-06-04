@@ -5,27 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cc71aba3-a987-42a9-bb55-58b2c8833311" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/moover-backend.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/GraphDatabaseSupport_DataSourcesState.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/mooover-backend.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/commons/commons/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/commons/commons/domain/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/commons/commons/domain/errors.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/commons/commons/domain/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/commons/commons/repositories.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/commons/commons/utils/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/commons/commons/utils/validators.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/commons/setup.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/.test.config" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test_api.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test_repositories.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test_services.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.deepsource.toml" beforeDir="false" afterPath="$PROJECT_DIR$/.deepsource.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,7 +71,7 @@
       <workItem from="1717506832970" duration="418000" />
       <workItem from="1717507707209" duration="213000" />
       <workItem from="1717508477409" duration="56000" />
-      <workItem from="1717512594388" duration="966000" />
+      <workItem from="1717512594388" duration="1659000" />
     </task>
     <servers />
   </component>
