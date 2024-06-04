@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cc71aba3-a987-42a9-bb55-58b2c8833311" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.deepsource.toml" beforeDir="false" afterPath="$PROJECT_DIR$/.deepsource.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -28,7 +27,7 @@
   "keyToString": {
     "Docker.all services.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "MOV-2-commons-library",
+    "git-widget-placeholder": "MOV-3-auth-services",
     "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "D:/University/disertation/projects/moover-backend",
     "node.js.detected.package.eslint": "true",
@@ -71,7 +70,7 @@
       <workItem from="1717506832970" duration="418000" />
       <workItem from="1717507707209" duration="213000" />
       <workItem from="1717508477409" duration="56000" />
-      <workItem from="1717512594388" duration="1659000" />
+      <workItem from="1717512594388" duration="2100000" />
     </task>
     <servers />
   </component>

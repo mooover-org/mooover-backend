@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./services/auth-services/Dockerfile
+    ports:
+      - "8000:8000"
