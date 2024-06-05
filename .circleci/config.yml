@@ -1,85 +1,90 @@
 version: 2.1
 
 orbs:
-  python: circleci/python@1.5.0
+  python: circleci/python@2.1.1
   codecov: codecov/codecov@3.2.2
 
 executors:
-  python-3.8:
+  python-standard:
     docker:
-      - image: cimg/python:3.8.0
+      - image: cimg/python:3.10.0
 
 jobs:
   test-auth-services:
-    executor: python-3.8
-    working_directory: ~/project/services/auth-services
+    executor: python-standard
     steps:
       - checkout
       - run:
           name: Install commons library
-          command: pip install -e ../../corelib
+          command: pip install -e corelib
       - run:
           name: Install dependencies
-          command: pip install -r requirements.txt
+          command: pip install -r ./services/auth-services/requirements.txt
       - run:
           name: Run tests
-          command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
+          command: cd ./services/auth-services && pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
       - codecov/upload:
-          file: coverage.xml
+          file: ./services/auth-services/coverage.xml
   test-user-services:
-    executor: python-3.8
-    working_directory: ~/project/services/user-services
+    executor: python-standard
+    environment:
+      DB_PASSWORD: $DB_PASSWORD
     steps:
       - checkout
       - run:
           name: Install commons library
-          command: pip install -e ../../corelib
+          command: pip install -e corelib
       - run:
           name: Install dependencies
-          command: pip install -r requirements.txt
+          command: pip install -r ./services/user-services/requirements.txt
       - run:
           name: Run tests
-          command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
+          command: cd ./services/user-services && pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
       - codecov/upload:
-          file: coverage.xml
+          file: ./services/user-services/coverage.xml
   test-group-services:
-    executor: python-3.8
-    working_directory: ~/project/services/group-services
+    executor: python-standard
+    environment:
+      DB_PASSWORD: $DB_PASSWORD
     steps:
       - checkout
       - run:
           name: Install commons library
-          command: pip install -e ../../corelib
+          command: pip install -e corelib
       - run:
           name: Install dependencies
-          command: pip install -r requirements.txt
+          command: pip install -r ./services/group-services/requirements.txt
       - run:
           name: Run tests
-          command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
+          command: cd ./services/group-services && pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
       - codecov/upload:
-          file: coverage.xml
+          file: ./services/group-services/coverage.xml
   test-steps-services:
-    executor: python-3.8
-    working_directory: ~/project/services/steps-services
+    executor: python-standard
+    environment:
+      DB_PASSWORD: $DB_PASSWORD
     steps:
       - checkout
       - run:
           name: Install commons library
-          command: pip install -e ../../corelib
+          command: pip install -e corelib
       - run:
           name: Install dependencies
-          command: pip install -r requirements.txt
+          command: pip install -r ./services/steps-services/requirements.txt
       - run:
           name: Run tests
-          command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
+          command: cd ./services/steps-services && pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
       - codecov/upload:
-          file: coverage.xml
+          file: ./services/steps-services/coverage.xml
 
 workflows:
   test-services:
     jobs:
-      - test-auth-services
-      - test-user-services
-      - test-group-services
-      - test-steps-services
-
+      - test-auth-services:
+          context: mooover-backend
+      - test-user-services:
+          context: mooover-backend
+#      - test-group-services:
+#          context: mooover-backend
+#      - test-steps-services:
+#          context: mooover-backend
