@@ -2,13 +2,14 @@ from typing import List
 
 from corelib.domain.errors import NoContentError
 from corelib.domain.models import User, Group
-from corelib.repositories import Repository
+
+from app.repositories import Neo4jUserRepository
 
 
 class UserServices:
     """The services associated with the user related operations"""
 
-    def __init__(self, repo=Repository({})) -> None:
+    def __init__(self, repo: Neo4jUserRepository) -> None:
         self.user_repo = repo
 
     def get_user(self, user_id: str) -> User:
