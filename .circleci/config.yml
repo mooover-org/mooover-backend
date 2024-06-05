@@ -4,13 +4,21 @@ orbs:
   python: circleci/python@1.5.0
   codecov: codecov/codecov@3.2.2
 
-jobs:
-  test-services:
+executors:
+  python-3.8:
     docker:
       - image: cimg/python:3.8.0
+
+jobs:
+  test-auth-services:
+    executor: python-3.8
+    working_directory: ~/project/services/auth-services
     steps:
       - checkout
-      - run: 
+      - run:
+          name: Install commons library
+          command: pip install -e ../../corelib
+      - run:
           name: Install dependencies
           command: pip install -r requirements.txt
       - run:
@@ -18,9 +26,60 @@ jobs:
           command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
       - codecov/upload:
           file: coverage.xml
-  
+  test-user-services:
+    executor: python-3.8
+    working_directory: ~/project/services/user-services
+    steps:
+      - checkout
+      - run:
+          name: Install commons library
+          command: pip install -e ../../corelib
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+      - run:
+          name: Run tests
+          command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
+      - codecov/upload:
+          file: coverage.xml
+  test-group-services:
+    executor: python-3.8
+    working_directory: ~/project/services/group-services
+    steps:
+      - checkout
+      - run:
+          name: Install commons library
+          command: pip install -e ../../corelib
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+      - run:
+          name: Run tests
+          command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
+      - codecov/upload:
+          file: coverage.xml
+  test-steps-services:
+    executor: python-3.8
+    working_directory: ~/project/services/steps-services
+    steps:
+      - checkout
+      - run:
+          name: Install commons library
+          command: pip install -e ../../corelib
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+      - run:
+          name: Run tests
+          command: pytest --cov-config=.coveragerc --cov=app --cov-report=xml --cov-report=html test
+      - codecov/upload:
+          file: coverage.xml
+
 workflows:
   test-services:
     jobs:
-      - test-services
+      - test-auth-services
+      - test-user-services
+      - test-group-services
+      - test-steps-services
 
