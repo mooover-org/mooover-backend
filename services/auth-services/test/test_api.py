@@ -3,10 +3,9 @@ import http.client
 import pytest
 from starlette.testclient import TestClient
 
-from api import app
+from main import app
 
 
-@pytest.mark.skip(reason="It breaks the database")
 class TestApi:
     client: TestClient
     access_token: str
@@ -14,7 +13,6 @@ class TestApi:
     user2: dict
 
     @pytest.fixture(autouse=True)
-    @pytest.mark.skip(reason="It breaks the database")
     def setup(self):
         self.client = TestClient(app)
         conn = http.client.HTTPSConnection("dev-ed4pmqgq.eu.auth0.com")
@@ -27,21 +25,17 @@ class TestApi:
         res = conn.getresponse()
         data = res.read()
         self.access_token = data.decode("utf-8").split("\"")[3]
-        self.user1 = {"id": "1", "name": "test", "given_name": "test",
-                      "family_name": "test", "nickname": "test",
+        self.user1 = {"id": "1", "name": "test", "given_name": "test", "family_name": "test", "nickname": "test",
                       "email": "test@test.test", "picture": "test"}
-        self.user2 = {"id": "2", "name": "test", "given_name": "test",
-                      "family_name": "test", "nickname": "test",
+        self.user2 = {"id": "2", "name": "test", "given_name": "test", "family_name": "test", "nickname": "test",
                       "email": "test@test.test", "picture": "test"}
 
-    @pytest.mark.skip(reason="It breaks the database")
     def test_ping(self):
         response = self.client.get("/api/v1/auth/ping")
         assert response.status_code == 200
         assert response.json() == "pong"
 
-    @pytest.mark.skip(reason="It breaks the database")
     def test_status(self):
-        response = self.client.get("/api/v1/auth/")
+        response = self.client.get("/api/v1/auth/status", headers={"Authorization": f'Bearer {self.access_token}'})
         assert response.status_code == 200
         assert response.json() == "authenticated"
