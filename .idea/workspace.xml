@@ -5,7 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cc71aba3-a987-42a9-bb55-58b2c8833311" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.deepsource.toml" beforeDir="false" afterPath="$PROJECT_DIR$/.deepsource.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/corelib/.idea/corelib.iml" beforeDir="false" afterPath="$PROJECT_DIR$/corelib/.idea/corelib.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/corelib/corelib/domain/errors.py" beforeDir="false" afterPath="$PROJECT_DIR$/corelib/corelib/domain/errors.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/corelib/corelib/domain/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/corelib/corelib/domain/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/corelib/corelib/repositories.py" beforeDir="false" afterPath="$PROJECT_DIR$/corelib/corelib/repositories.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/corelib/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/corelib/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/auth-services/test/test_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/auth-services/test/test_api.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,27 +29,31 @@
   &quot;associatedIndex&quot;: 8
 }</component>
   <component name="ProjectId" id="2hPoKqBnv0WqQeY7BmxxjiZs41e" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Docker.all services.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "MOV-3-auth-services",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "D:/University/disertation/projects/moover-backend",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.intellij.pycharm.community.ide.impl.configuration.PythonContentEntriesConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Docker.all services.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;MOV-4-user-services&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/University/disertation/projects/moover-backend&quot;,
+    &quot;nginx server.all services local.executor&quot;: &quot;Run&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="RunManager">
+}</component>
+  <component name="RunManager" selected="Docker.all services">
     <configuration name="all services" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
       <deployment type="docker-compose.yml">
         <settings>
@@ -49,6 +63,18 @@
       </deployment>
       <method v="2" />
     </configuration>
+    <configuration name="all services local" type="nginx.configuration.type" factoryName="nginx server">
+      <option name="serverDescriptorId" value="nginx.descriptor.1717523097824" />
+      <option name="showHttpLog" value="false" />
+      <option name="showErrorLog" value="false" />
+      <option name="httpLogPath" value="C:/Program Files/Nginx/nginx-1.27.0/logs/access.log" />
+      <option name="errorLogPath" value="C:/Program Files/Nginx/nginx-1.27.0/logs/error.log" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Docker.all services" />
+      <item itemvalue="nginx server.all services local" />
+    </list>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -71,10 +97,16 @@
       <workItem from="1717507707209" duration="213000" />
       <workItem from="1717508477409" duration="56000" />
       <workItem from="1717512594388" duration="2100000" />
+      <workItem from="1717520729511" duration="150000" />
+      <workItem from="1717522646904" duration="1386000" />
+      <workItem from="1717524094890" duration="13144000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.conf" />
   </component>
 </project>

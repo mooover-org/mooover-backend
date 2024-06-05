@@ -24,3 +24,10 @@ class NoContentError(AppError):
 
     def __init__(self, message="entity is empty") -> None:
         super().__init__(message)
+
+
+class InvalidContentError(AppError):
+    """Error thrown when an entity or resource is invalid"""
+
+    def __init__(self, message="entity is invalid") -> None:
+        super().__init__(message)

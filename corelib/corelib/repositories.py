@@ -1,6 +1,7 @@
 from typing import Any, List
 
-from corelib.domain.errors import NotFoundError, DuplicateError
+from corelib.domain.errors import NotFoundError, DuplicateError, InvalidContentError
+from corelib.domain.models import Entity
 
 
 class Repository:
@@ -8,9 +9,10 @@ class Repository:
 
     entities: dict = {}
 
-    def __init__(self, entities=None) -> None:
-        if entities:
-            self.entities = entities
+    def __init__(self, entities: dict) -> None:
+        if type(entities) is not dict:
+            raise InvalidContentError("repository contents have to be dict")
+        self.entities = entities
 
     def get_one(self, entity_id: str) -> Any:
         """
@@ -55,7 +57,7 @@ class Repository:
             raise NotFoundError("Entity not found")
         self.entities[entity.id] = entity
 
-    def delete(self, entity_id) -> None:
+    def delete(self, entity_id: str) -> None:
         """
         Delete an entity from the repository
 

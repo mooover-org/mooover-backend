@@ -1,6 +1,22 @@
 from emoji.unicode_codes import UNICODE_EMOJI
 
 
+class Entity:
+    """The base entity model. Used mostly for testing purposes"""
+    identifier: str
+
+    @property
+    def id(self) -> str:
+        return self.identifier
+
+    @id.setter
+    def id(self, value):
+        self.identifier = value
+
+    def __init__(self, identifier: str) -> None:
+        self.identifier = identifier
+
+
 class User:
     """The base user model"""
     __primarykey__ = "sub"
