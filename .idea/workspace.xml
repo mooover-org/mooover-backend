@@ -8,7 +8,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/nginx.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/user-services/app/services.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/user-services/app/services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/group-services/app/services.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/group-services/app/services.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,9 +33,9 @@
   "keyToString": {
     "Docker.all services.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "MOV-5-group-services",
+    "git-widget-placeholder": "MOV-6-steps-services",
     "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "D:/University/disertation/projects/moover-backend",
+    "last_opened_file_path": "D:/University/disertation/projects/moover-backend/services/steps-services",
     "nginx server.all services local.executor": "Run",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -92,7 +92,7 @@
       <workItem from="1717512594388" duration="2100000" />
       <workItem from="1717520729511" duration="150000" />
       <workItem from="1717522646904" duration="1386000" />
-      <workItem from="1717524094890" duration="14815000" />
+      <workItem from="1717524094890" duration="19028000" />
     </task>
     <servers />
   </component>

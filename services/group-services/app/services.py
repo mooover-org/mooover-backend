@@ -69,7 +69,7 @@ class GroupServices:
         :raises ValueError: if the group data is not valid
         :raises NotFoundError: if the user cannot be found in the repository
         """
-        if self._get_group_of_user(user_id, bearer_token) is None:
+        if self._get_group_of_user(user_id, bearer_token) is not None:
             raise DuplicateError("The user already has a group")
         group = Group(nickname=nickname, name=name)
         self.group_repo.add(group)
@@ -173,7 +173,7 @@ class GroupServices:
                               headers={"Authorization": f"Bearer {bearer_token}"})
         if response.status_code == 204:
             return None
-        elif response.status_code != 200:
+        elif response.status_code == 200:
             return Group.from_dict(response.json())
         else:
             raise HTTPException(status_code=response.status_code, detail=response.text)
