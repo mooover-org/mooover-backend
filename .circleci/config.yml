@@ -16,7 +16,7 @@ jobs:
       - checkout
       - run:
           name: Install commons library
-          command: pip install -e corelib
+          command: pip install -e git+https://github.com/mooover-org/mooover-corelib.git#egg=corelib
       - run:
           name: Install dependencies
           command: pip install -r ./services/auth-services/requirements.txt
@@ -33,7 +33,7 @@ jobs:
       - checkout
       - run:
           name: Install commons library
-          command: pip install -e corelib
+          command: pip install -e git+https://github.com/mooover-org/mooover-corelib.git#egg=corelib
       - run:
           name: Install dependencies
           command: pip install -r ./services/user-services/requirements.txt
@@ -50,7 +50,7 @@ jobs:
       - checkout
       - run:
           name: Install commons library
-          command: pip install -e corelib
+          command: pip install -e git+https://github.com/mooover-org/mooover-corelib.git#egg=corelib
       - run:
           name: Install dependencies
           command: pip install -r ./services/group-services/requirements.txt
@@ -67,7 +67,7 @@ jobs:
       - checkout
       - run:
           name: Install commons library
-          command: pip install -e corelib
+          command: pip install -e git+https://github.com/mooover-org/mooover-corelib.git#egg=corelib
       - run:
           name: Install dependencies
           command: pip install -r ./services/steps-services/requirements.txt

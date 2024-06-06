@@ -5,34 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cc71aba3-a987-42a9-bb55-58b2c8833311" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.circleci/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.circleci/config.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/.idea/corelib.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/corelib/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/corelib/domain/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/corelib/domain/errors.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/corelib/domain/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/corelib/repositories.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/corelib/utils/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/corelib/utils/validators.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/setup.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/test/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/corelib/test/test_repositories.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/nginx/nginx.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/auth-services/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/services/auth-services/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/auth-services/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/services/auth-services/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/group-services/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/services/group-services/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/group-services/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/services/group-services/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/steps-services/.idea/steps-services.iml" beforeDir="false" afterPath="$PROJECT_DIR$/services/steps-services/.idea/steps-services.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/steps-services/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/services/steps-services/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/steps-services/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/services/steps-services/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/user-services/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/services/user-services/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/user-services/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/services/user-services/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,7 +31,7 @@
   "keyToString": {
     "Docker.all services.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "MOV-11-deploy-backend-to-cloud-service",
+    "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "D:/University/disertation/projects/mooover-corelib",
     "nginx server.all services local.executor": "Run",
