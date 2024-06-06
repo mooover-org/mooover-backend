@@ -4,3 +4,4 @@ pause~=0.3.0
 neo4j~=5.20.0
 pytest~=8.2.2
 pytest-cov~=5.0.0
+-e git+https://github.com/mooover-org/mooover-corelib.git#egg=corelib
