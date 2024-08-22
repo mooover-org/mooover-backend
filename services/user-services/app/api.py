@@ -74,7 +74,7 @@ async def get_user(user_id: str, bearer_token=Depends(HTTPBearer())):
     return user.as_dict()
 
 
-@router.get("/", status_code=200, tags=["user"])
+@router.get("", status_code=200, tags=["user"])
 @require_auth
 async def get_users(bearer_token=Depends(HTTPBearer())):
     """
@@ -92,7 +92,7 @@ async def get_users(bearer_token=Depends(HTTPBearer())):
     return [user.as_dict() for user in users]
 
 
-@router.post("/", status_code=201, tags=["user"])
+@router.post("", status_code=201, tags=["user"])
 @require_auth
 async def register_user(request: Request, bearer_token=Depends(HTTPBearer())):
     """

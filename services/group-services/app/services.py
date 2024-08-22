@@ -104,6 +104,17 @@ class GroupServices:
         """
         self.group_repo.delete(group_id)
 
+    def get_group_steps(self, group_id: str) -> [str, str]:
+        """
+        Gets a group's steps
+
+        :param group_id: the id of the group
+        :return: the group's steps
+        :raises NotFoundError: if the group cannot be found in the repository
+        """
+        group = self.group_repo.get_one(group_id)
+        return group.today_steps, group.this_week_steps
+
     def get_members_of_group(self, group_id: str) -> List[User]:
         """
         Gets the members of a group
@@ -177,3 +188,4 @@ class GroupServices:
             return Group.from_dict(response.json())
         else:
             raise HTTPException(status_code=response.status_code, detail=response.text)
+

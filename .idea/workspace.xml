@@ -6,7 +6,17 @@
   <component name="ChangeListManager">
     <list default="true" id="cc71aba3-a987-42a9-bb55-58b2c8833311" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/heroku.yml" beforeDir="false" afterPath="$PROJECT_DIR$/heroku.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/group-services/.config" beforeDir="false" afterPath="$PROJECT_DIR$/services/group-services/.config" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/group-services/app/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/group-services/app/api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/group-services/app/services.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/group-services/app/services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/steps-services/.config" beforeDir="false" afterPath="$PROJECT_DIR$/services/steps-services/.config" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/steps-services/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/steps-services/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/services/steps-services/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/steps-services/.idea/steps-services.iml" beforeDir="false" afterPath="$PROJECT_DIR$/services/steps-services/.idea/steps-services.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/steps-services/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/services/steps-services/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/user-services/.config" beforeDir="false" afterPath="$PROJECT_DIR$/services/user-services/.config" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/user-services/app/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/user-services/app/api.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,7 +43,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "D:/University/disertation/projects/mooover-corelib",
+    "last_opened_file_path": "D:/University/disertation/projects/moover-backend/services/auth-services",
     "nginx server.all services local.executor": "Run",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -105,6 +115,12 @@
       <workItem from="1717606509451" duration="6653000" />
       <workItem from="1717665994316" duration="1854000" />
       <workItem from="1717672871622" duration="10897000" />
+      <workItem from="1717697167102" duration="40000" />
+      <workItem from="1717700296887" duration="461000" />
+      <workItem from="1717706116172" duration="46000" />
+      <workItem from="1718625946935" duration="2683000" />
+      <workItem from="1724340209537" duration="43000" />
+      <workItem from="1724362935274" duration="1471000" />
     </task>
     <servers />
   </component>

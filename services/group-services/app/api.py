@@ -73,7 +73,7 @@ async def get_group(group_id: str, bearer_token=Depends(HTTPBearer())):
     return group.as_dict()
 
 
-@router.get("/", status_code=200, tags=["group"])
+@router.get("", status_code=200, tags=["group"])
 @require_auth
 async def get_groups(nickname: str = "", bearer_token=Depends(HTTPBearer())):
     """
@@ -92,7 +92,7 @@ async def get_groups(nickname: str = "", bearer_token=Depends(HTTPBearer())):
     return [group.as_dict() for group in groups]
 
 
-@router.post("/", status_code=201, tags=["group"])
+@router.post("", status_code=201, tags=["group"])
 @require_auth
 async def add_group(request: Request, bearer_token=Depends(HTTPBearer())):
     """
@@ -169,6 +169,27 @@ async def delete_group(group_id: str, bearer_token=Depends(HTTPBearer())):
         raise HTTPException(status_code=500, detail=f"Internal server error: "
                                                     f"{str(e)}")
     return {"message": "Group deleted"}
+
+
+@router.get("/{group_id}/steps", status_code=200, tags=["group, steps"])
+@require_auth
+async def get_group_steps(group_id: str, bearer_token=Depends(HTTPBearer())):
+    """
+    Route for getting a group's steps
+
+    :param group_id: the id of the group
+    :param bearer_token: the bearer token for authorization
+    :return: the steps of the group
+    :raises HTTPException: if group not found or authorization is invalid
+    """
+    try:
+        today_steps, this_week_steps = group_services.get_group_steps(group_id)
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: "
+                                                    f"{str(e)}")
+    return {"today_steps": today_steps, "this_week_steps": this_week_steps}
 
 
 @router.get("/{group_id}/members", status_code=200, tags=["group, user"])
